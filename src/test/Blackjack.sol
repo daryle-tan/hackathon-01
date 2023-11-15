@@ -40,6 +40,12 @@ contract Blackjack is VRFConsumerBaseV2 {
     // Your subscription ID.
     uint64 immutable s_subscriptionId;
     bytes32 immutable s_keyHash;
+    uint32 immutable s_callbackGasLimit = 100000;
+
+    // The default is 3, but you can set this higher.
+    uint16 immutable s_requestConfirmations = 3;
+
+    uint8 public immutable s_numCards = 2;
     address s_owner;
     mapping(uint8 => Card) public deck;
 
@@ -56,8 +62,19 @@ contract Blackjack is VRFConsumerBaseV2 {
         s_subscriptionId = subscriptionId;
     }
 
+    function requestRandomWords() external onlyOwner {
+        // Will revert if subscription is not set and funded.
+        s_requestId = COORDINATOR.requestRandomWords(
+            s_keyHash,
+            s_subscriptionId,
+            s_requestConfirmations,
+            s_callbackGasLimit,
+            s_numCards
+        );
+    }
+
     // implement the VRF to randomly select cards from the deck
-    function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords)
+    function fulfillRandomWords(uint256 requestId, uint256[] memory randomCards)
         internal
         override
     {
