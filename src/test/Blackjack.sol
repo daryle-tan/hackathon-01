@@ -46,6 +46,7 @@ contract Blackjack is VRFConsumerBaseV2 {
     uint16 immutable s_requestConfirmations = 3;
 
     uint8 public immutable s_numCards = 2;
+    uint256 public s_requestId;
     address s_owner;
     mapping(uint8 => Card) public deck;
 
@@ -74,7 +75,7 @@ contract Blackjack is VRFConsumerBaseV2 {
     }
 
     // implement the VRF to randomly select cards from the deck
-    function fulfillRandomWords(uint256 requestId, uint256[] memory randomCards)
+    function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords)
         internal
         override
     {
@@ -93,4 +94,9 @@ contract Blackjack is VRFConsumerBaseV2 {
 
     // create function for standing
     function standingHand() external {}
+
+    modifier onlyOwner() {
+        require(msg.sender == s_owner);
+        _;
+    }
 }
