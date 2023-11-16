@@ -4,9 +4,11 @@ pragma solidity ^0.8.20;
 import "@chainlink/contracts/src/v0.8/interfaces/LinkTokenInterface.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "forge-std/console.sol";
 
 contract Blackjack is VRFConsumerBaseV2 {
+    using SafeMath for uint256;
     // create a variable of all 52 cards
     enum Suit {
         Hearts,
@@ -94,6 +96,15 @@ contract Blackjack is VRFConsumerBaseV2 {
 
     // create function for standing
     function standingHand() external {}
+
+    // round down the random number
+    function roundDown(uint256 number, uint256 divisor)
+        public
+        pure
+        returns (uint256)
+    {
+        return number.div(divisor);
+    }
 
     modifier onlyOwner() {
         require(msg.sender == s_owner);
