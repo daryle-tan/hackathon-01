@@ -4,11 +4,10 @@ pragma solidity ^0.8.20;
 import "@chainlink/contracts/src/v0.8/interfaces/LinkTokenInterface.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+
 import "forge-std/console.sol";
 
 contract Blackjack is VRFConsumerBaseV2 {
-    using SafeMath for uint256;
     // create a variable of all 52 cards
     enum Suit {
         Hearts,
@@ -48,9 +47,16 @@ contract Blackjack is VRFConsumerBaseV2 {
     uint16 immutable s_requestConfirmations = 3;
 
     uint8 public immutable s_numCards = 2;
+    uint256 internal s_randomResult;
+    uint256 internal desiredRange = 52;
     uint256 public s_requestId;
     address s_owner;
-    mapping(uint8 => Card) public deck;
+    Card[] public deck;
+
+    modifier onlyOwner() {
+        require(msg.sender == s_owner);
+        _;
+    }
 
     constructor(
         uint64 subscriptionId,
@@ -81,7 +87,7 @@ contract Blackjack is VRFConsumerBaseV2 {
         internal
         override
     {
-        // s_randomWords = randomWords;
+        // s_randomResult = randomWords % desiredRange;
         // emit ReturnedRandomness(randomWords);
     }
 
@@ -96,18 +102,4 @@ contract Blackjack is VRFConsumerBaseV2 {
 
     // create function for standing
     function standingHand() external {}
-
-    // round down the random number
-    function roundDown(uint256 number, uint256 divisor)
-        public
-        pure
-        returns (uint256)
-    {
-        return number.div(divisor);
-    }
-
-    modifier onlyOwner() {
-        require(msg.sender == s_owner);
-        _;
-    }
 }
