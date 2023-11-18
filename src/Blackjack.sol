@@ -11,12 +11,6 @@ contract Blackjack is VRFConsumerBaseV2 {
     VRFCoordinatorV2Interface immutable COORDINATOR;
     LinkTokenInterface immutable LINKTOKEN;
     // create variables of all 52 cards
-    enum Suit {
-        Hearts,
-        Diamonds,
-        Clubs,
-        Spades
-    }
     enum Rank {
         Ace,
         Two,
@@ -32,10 +26,16 @@ contract Blackjack is VRFConsumerBaseV2 {
         Queen,
         King
     }
+    enum Suit {
+        Spades,
+        Clubs,
+        Hearts,
+        Diamonds
+    }
 
     struct Card {
-        Suit suit;
         Rank rank;
+        Suit suit;
         uint8 cardValue;
     }
 
@@ -48,11 +48,11 @@ contract Blackjack is VRFConsumerBaseV2 {
     uint16 private constant REQUEST_CONFIRMATIONS = 3;
 
     uint8 internal s_numCards = 4;
-    uint256 internal s_randomResult;
+    uint8[] internal s_randomResult;
     uint256 internal desiredRange = 52;
     uint256 public s_requestId;
     address s_owner;
-    Card[] public deck;
+    Card[52] public deck;
 
     modifier onlyOwner() {
         require(msg.sender == s_owner);
@@ -72,6 +72,15 @@ contract Blackjack is VRFConsumerBaseV2 {
         s_owner = msg.sender;
         s_callbackGasLimit = callbackGasLimit;
         s_subscriptionId = subscriptionId;
+
+        for (uint256 i = 0; i < 52; i++) {
+            // Calculate rank and suit based on index
+            Rank cardRank = Rank(i % 13); // 13 ranks
+            Suit cardSuit = Suit(i / 13); // 4 suits
+
+            // Initialize card for each index of the deck array
+            deck[i] = Card(cardRank, cardSuit, uint8(cardRank) + 1);
+        }
     }
 
     function requestRandomWords() public onlyOwner {
@@ -109,4 +118,25 @@ contract Blackjack is VRFConsumerBaseV2 {
 
     // create logic to bust or win
     function bustOrBlackjack() internal {}
+
+    function areAllCardsPresent() external view returns (bool) {
+        // Create a boolean array to mark the presence of each card
+        bool[52] memory cardsPresent;
+
+        // Iterate through the deck and mark each card as present
+        for (uint256 i = 0; i < deck.length; i++) {
+            uint256 cardIndex = uint256(deck[i].rank) +
+                uint256(deck[i].suit) *
+                13;
+            cardsPresent[cardIndex] = true;
+        }
+
+        // Check if all cards are present
+        for (uint256 j = 0; j < 52; j++) {
+            if (!cardsPresent[j]) {
+                return false; // Card is missing
+            }
+        }
+        return true; // All cards are present
+    }
 }
