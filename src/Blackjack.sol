@@ -78,8 +78,18 @@ contract Blackjack is VRFConsumerBaseV2 {
             Rank cardRank = Rank(i % 13); // 13 ranks
             Suit cardSuit = Suit(i / 13); // 4 suits
 
+            // Convert enum to uint for comparison
+            uint8 rankValue = uint8(cardRank);
+
+            // check for aces and assign value of 1
             // Initialize card for each index of the deck array
-            deck[i] = Card(cardRank, cardSuit, uint8(cardRank) + 1);
+            if (rankValue == 0) {
+                deck[i] = Card(cardRank, cardSuit, 1);
+            } else if (rankValue >= 1 && rankValue <= 8) {
+                deck[i] = Card(cardRank, cardSuit, rankValue + 1);
+            } else {
+                deck[i] = Card(cardRank, cardSuit, 10);
+            }
         }
     }
 
