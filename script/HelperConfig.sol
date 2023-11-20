@@ -5,15 +5,11 @@ contract HelperConfig {
     NetworkConfig public activeNetworkConfig;
 
     struct NetworkConfig {
-        address oracle;
-        bytes32 jobId;
-        uint256 chainlinkFee;
-        address link;
-        uint256 updateInterval;
-        address priceFeed;
-        uint64 subscriptionId;
-        address vrfCoordinator;
-        bytes32 keyHash;
+        address vrfCoordinator,
+        address link,
+        bytes32 keyHash,
+        uint32 callbackGasLimit,
+        uint64 subscriptionId
     }
 
     mapping(uint256 => NetworkConfig) public chainIdToNetworkConfig;

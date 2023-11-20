@@ -4,10 +4,13 @@ pragma solidity ^0.8.20;
 import {LinkTokenInterface} from "@chainlink/contracts/src/v0.8/interfaces/LinkTokenInterface.sol";
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
-
 import "forge-std/console.sol";
 
 contract Blackjack is VRFConsumerBaseV2 {
+    error Blackjack__IncorrectRequestId(uint256);
+    error Blackjack__RandomCardsNotYetGenerated();
+    error Blackjack__NoWinnersYet();
+
     VRFCoordinatorV2Interface immutable COORDINATOR;
     LinkTokenInterface immutable LINKTOKEN;
     // create variables of all 52 cards
@@ -48,11 +51,19 @@ contract Blackjack is VRFConsumerBaseV2 {
     uint16 private constant REQUEST_CONFIRMATIONS = 3;
 
     uint8 internal s_numCards = 4;
-    uint8[] internal s_randomResult;
+    uint8 s_playerValue;
+    uint8 s_dealerValue;
+    uint256[] internal s_randomResult;
     uint256 internal desiredRange = 52;
     uint256 public s_requestId;
     address s_owner;
     Card[52] public deck;
+
+    event Blackjack__RandomWordsRequested();
+    event Blackjack__ReturnedRandomness(uint256[]);
+    event Blackjack__PlayerWins();
+    event Blackjack__Push();
+    event Blackjack__DealerWins();
 
     modifier onlyOwner() {
         require(msg.sender == s_owner);
@@ -93,8 +104,35 @@ contract Blackjack is VRFConsumerBaseV2 {
         }
     }
 
+    function checkUpkeep(
+        bytes memory /* checkData */
+    )
+        public
+        view
+        returns (
+            bool upkeepNeeded,
+            bytes memory /* performData */
+        )
+    {
+        bool playerWins = s_playerValue == 21;
+        bool dealerWins = s_dealerValue == 21;
+        upkeepNeeded = (playerWins || dealerWins);
+        return (upkeepNeeded, "0x0");
+    }
+
+    // create logic to bust or win
+    function performUpkeep(
+        bytes calldata /* performData */
+    ) public {
+        (bool upkeepNeeded, ) = checkUpkeep("");
+        if (!upkeepNeeded) {
+            revert Blackjack__NoWinnersYet();
+        }
+        //  s_playerValue = 0
+        //   s_dealerValue = 0;
+    }
+
     function requestRandomWords() public onlyOwner {
-        // Will revert if subscription is not set and funded.
         s_requestId = COORDINATOR.requestRandomWords(
             s_keyHash, // gaslane
             s_subscriptionId,
@@ -102,6 +140,7 @@ contract Blackjack is VRFConsumerBaseV2 {
             s_callbackGasLimit,
             s_numCards
         );
+        emit Blackjack__RandomWordsRequested();
     }
 
     // implement the VRF to randomly select cards from the deck
@@ -109,44 +148,60 @@ contract Blackjack is VRFConsumerBaseV2 {
         internal
         override
     {
-        // s_randomResult = randomWords % desiredRange;
-        // emit ReturnedRandomness(randomWords);
+        if (requestId != s_requestId) {
+            revert Blackjack__IncorrectRequestId(requestId);
+        }
+        s_randomResult = randomWords;
+        emit Blackjack__ReturnedRandomness(randomWords);
     }
 
     // create function to start game
     function startGame() public {
         // if s_numCards != 4 then set to 4
+        //   s_playerValue = sumOfCardValue
+        //   s_dealerValue = sumOfCardValue;
     }
 
-    // create a function to hit
-    function hitCard() public {
+    function selectCardsFromDeck() internal {
+        if (s_randomResult.length == 0) {
+            revert Blackjack__RandomCardsNotYetGenerated();
+        }
+
+        Card[] memory selectedCards;
+
+        for (uint256 i = 0; i < s_randomResult.length; i++) {
+            uint256 randomIndex = s_randomResult[i] % 52; // Ensure index within the deck size
+
+            // Get the card from the deck at the randomly generated index
+            selectedCards[i] = deck[randomIndex];
+        }
+
+        // Now you have the selected 4 cards in 'selectedCards' array
+        // Proceed with your game logic using these cards...
+    }
+
+    // create a function for player to hit
+    function hitPlayerCard() external {
         // set s_numCards to 1 and call requestRandomWords and fulfillRandomWords
+        //   s_playerValue = sumOfCardValue
+    }
+
+    // create a function for dealer to hits
+    function hitDealerCard() external {
+        // set s_numCards to 1 and call requestRandomWords and fulfillRandomWords
+        //   s_dealerValue = sumOfCardValue;
+        if (s_dealerValue > 21) {
+            emit Blackjack__PlayerWins();
+            performUpkeep();
+        } else if (s_dealerValue == s_playerValue) {
+            emit Blackjack__Push();
+            performUpkeep();
+        } else if (s_dealerValue > s_playerValue && s_dealerValue <= 21) {
+            emit Blackjack__DealerWins();
+            performUpkeep();
+        }
     }
 
     // create function for standing
-    function standingHand() external {}
-
-    // create logic to bust or win
-    function bustOrBlackjack() internal {}
-
-    function areAllCardsPresent() external view returns (bool) {
-        // Create a boolean array to mark the presence of each card
-        bool[52] memory cardsPresent;
-
-        // Iterate through the deck and mark each card as present
-        for (uint256 i = 0; i < deck.length; i++) {
-            uint256 cardIndex = uint256(deck[i].rank) +
-                uint256(deck[i].suit) *
-                13;
-            cardsPresent[cardIndex] = true;
-        }
-
-        // Check if all cards are present
-        for (uint256 j = 0; j < 52; j++) {
-            if (!cardsPresent[j]) {
-                return false; // Card is missing
-            }
-        }
-        return true; // All cards are present
-    }
+    function standHand() external {}
 }
