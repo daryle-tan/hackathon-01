@@ -64,6 +64,7 @@ contract Blackjack is VRFConsumerBaseV2 {
     event Blackjack__PlayerWins();
     event Blackjack__Push();
     event Blackjack__DealerWins();
+    event Blackjack__CardValue(uint8 cardValue);
 
     modifier onlyOwner() {
         require(msg.sender == s_owner);
@@ -91,7 +92,6 @@ contract Blackjack is VRFConsumerBaseV2 {
 
             // Convert enum to uint for comparison
             uint8 rankValue = uint8(cardRank);
-
             // check for aces and assign value of 1
             // Initialize card for each index of the deck array
             if (rankValue == 0) {
@@ -151,57 +151,54 @@ contract Blackjack is VRFConsumerBaseV2 {
         if (requestId != s_requestId) {
             revert Blackjack__IncorrectRequestId(requestId);
         }
-        s_randomResult = randomWords;
+
+        Card[52] memory selectedCards;
+        // Process each random number received
+        for (uint256 i = 0; i < randomWords.length; i++) {
+            // Ensure the random number is within the desired range (0-51)
+            uint256 cardIndex = randomWords[i] % desiredRange;
+            // Get the card from the deck at the randomly generated index
+            // and add to selectedCards array
+            selectedCards[i] = deck[cardIndex];
+            emit Blackjack__CardValue(deck[cardIndex].cardValue);
+            // s_playerValue += ;
+        }
+        // s_randomResult = randomWords;
         emit Blackjack__ReturnedRandomness(randomWords);
     }
 
     // create function to start game
     function startGame() public {
-        // if s_numCards != 4 then set to 4
-        //   s_playerValue = sumOfCardValue
-        //   s_dealerValue = sumOfCardValue;
-    }
-
-    function selectCardsFromDeck() internal {
-        if (s_randomResult.length == 0) {
-            revert Blackjack__RandomCardsNotYetGenerated();
+        if (s_numCards != 4) {
+            s_numCards = 4;
         }
-
-        Card[] memory selectedCards;
-
-        for (uint256 i = 0; i < s_randomResult.length; i++) {
-            uint256 randomIndex = s_randomResult[i] % 52; // Ensure index within the deck size
-
-            // Get the card from the deck at the randomly generated index
-            selectedCards[i] = deck[randomIndex];
-        }
-
-        // Now you have the selected 4 cards in 'selectedCards' array
-        // Proceed with your game logic using these cards...
+        requestRandomWords();
     }
 
     // create a function for player to hit
-    function hitPlayerCard() external {
+    function playerHitCard() external {
         // set s_numCards to 1 and call requestRandomWords and fulfillRandomWords
         //   s_playerValue = sumOfCardValue
     }
 
     // create a function for dealer to hits
-    function hitDealerCard() external {
+    function dealerHitCard() external {
         // set s_numCards to 1 and call requestRandomWords and fulfillRandomWords
         //   s_dealerValue = sumOfCardValue;
         if (s_dealerValue > 21) {
             emit Blackjack__PlayerWins();
-            performUpkeep();
+            // performUpkeep();
         } else if (s_dealerValue == s_playerValue) {
             emit Blackjack__Push();
-            performUpkeep();
+            // performUpkeep();
         } else if (s_dealerValue > s_playerValue && s_dealerValue <= 21) {
             emit Blackjack__DealerWins();
-            performUpkeep();
+            // performUpkeep();
         }
     }
 
     // create function for standing
-    function standHand() external {}
+    function standHand() external {
+        // s_dealerValue += deck[cardIndex].cardValue;
+    }
 }
