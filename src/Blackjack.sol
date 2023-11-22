@@ -10,6 +10,7 @@ contract Blackjack is VRFConsumerBaseV2 {
     error Blackjack__IncorrectRequestId(uint256);
     error Blackjack__RandomCardsNotYetGenerated();
     error Blackjack__NoWinnersYet();
+    error Blackjack__NeedToSetNumCardsToOne();
 
     VRFCoordinatorV2Interface immutable COORDINATOR;
     LinkTokenInterface immutable LINKTOKEN;
@@ -121,9 +122,9 @@ contract Blackjack is VRFConsumerBaseV2 {
     }
 
     // create logic to bust or win
-    function performUpkeep(
-        bytes calldata /* performData */
-    ) public {
+    function performUpkeep() public /*bytes calldata*/
+    /* performData */
+    {
         (bool upkeepNeeded, ) = checkUpkeep("");
         if (!upkeepNeeded) {
             revert Blackjack__NoWinnersYet();
@@ -151,19 +152,18 @@ contract Blackjack is VRFConsumerBaseV2 {
         if (requestId != s_requestId) {
             revert Blackjack__IncorrectRequestId(requestId);
         }
+        s_randomResult = randomWords;
 
         Card[52] memory selectedCards;
         // Process each random number received
-        for (uint256 i = 0; i < randomWords.length; i++) {
+        for (uint256 i = 0; i < s_randomResult.length; i++) {
             // Ensure the random number is within the desired range (0-51)
-            uint256 cardIndex = randomWords[i] % desiredRange;
+            uint256 cardIndex = s_randomResult[i] % desiredRange;
             // Get the card from the deck at the randomly generated index
             // and add to selectedCards array
             selectedCards[i] = deck[cardIndex];
             emit Blackjack__CardValue(deck[cardIndex].cardValue);
-            // s_playerValue += ;
         }
-        // s_randomResult = randomWords;
         emit Blackjack__ReturnedRandomness(randomWords);
     }
 
@@ -178,22 +178,28 @@ contract Blackjack is VRFConsumerBaseV2 {
     // create a function for player to hit
     function playerHitCard() external {
         // set s_numCards to 1 and call requestRandomWords and fulfillRandomWords
-        //   s_playerValue = sumOfCardValue
+        s_numCards = 1;
+        if (s_numCards > 1) {
+            revert Blackjack__NeedToSetNumCardsToOne();
+        }
+        requestRandomWords();
+        emit Blackjack__RandomWordsRequested();
+        fulfillRandomWords(s_requestId, s_randomResult);
+        emit Blackjack__ReturnedRandomness(s_randomResult);
     }
 
     // create a function for dealer to hits
     function dealerHitCard() external {
         // set s_numCards to 1 and call requestRandomWords and fulfillRandomWords
-        //   s_dealerValue = sumOfCardValue;
         if (s_dealerValue > 21) {
             emit Blackjack__PlayerWins();
-            // performUpkeep();
+            performUpkeep();
         } else if (s_dealerValue == s_playerValue) {
             emit Blackjack__Push();
-            // performUpkeep();
+            performUpkeep();
         } else if (s_dealerValue > s_playerValue && s_dealerValue <= 21) {
             emit Blackjack__DealerWins();
-            // performUpkeep();
+            performUpkeep();
         }
     }
 
