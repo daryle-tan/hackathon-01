@@ -48,7 +48,6 @@ contract Blackjack is VRFConsumerBaseV2 {
     bytes32 immutable s_keyHash;
     uint32 immutable s_callbackGasLimit;
 
-    // The default is 3, but you can set this higher.
     uint16 private constant REQUEST_CONFIRMATIONS = 3;
 
     uint8 internal s_numCards = 4;
@@ -133,7 +132,7 @@ contract Blackjack is VRFConsumerBaseV2 {
         //   s_dealerValue = 0;
     }
 
-    function requestRandomWords() public onlyOwner {
+    function dealCards() public onlyOwner returns (uint256) {
         s_requestId = COORDINATOR.requestRandomWords(
             s_keyHash, // gaslane
             s_subscriptionId,
@@ -142,6 +141,7 @@ contract Blackjack is VRFConsumerBaseV2 {
             s_numCards
         );
         emit Blackjack__RandomWordsRequested();
+        return s_requestId;
     }
 
     // implement the VRF to randomly select cards from the deck
@@ -172,7 +172,7 @@ contract Blackjack is VRFConsumerBaseV2 {
         if (s_numCards != 4) {
             s_numCards = 4;
         }
-        requestRandomWords();
+        dealCards();
     }
 
     // create a function for player to hit
@@ -182,10 +182,10 @@ contract Blackjack is VRFConsumerBaseV2 {
         if (s_numCards > 1) {
             revert Blackjack__NeedToSetNumCardsToOne();
         }
-        requestRandomWords();
+        dealCards();
         emit Blackjack__RandomWordsRequested();
-        fulfillRandomWords(s_requestId, s_randomResult);
-        emit Blackjack__ReturnedRandomness(s_randomResult);
+        // fulfillRandomWords(s_requestId, s_randomResult);
+        // emit Blackjack__ReturnedRandomness(s_randomResult);
     }
 
     // create a function for dealer to hits
