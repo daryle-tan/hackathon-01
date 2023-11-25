@@ -12,6 +12,8 @@ contract Blackjack is VRFConsumerBaseV2 {
     error Blackjack__NoWinnersYet();
     error Blackjack__NeedToSetNumCardsToOne();
     error Blackjack__NotPlayerTurn(bool);
+    error Blackjack__MustSendBidFee(uint128);
+    error MustStartGameFirst();
 
     VRFCoordinatorV2Interface immutable COORDINATOR;
     LinkTokenInterface immutable LINKTOKEN;
@@ -48,18 +50,23 @@ contract Blackjack is VRFConsumerBaseV2 {
     bool playerTurn;
     bool dealerTurn;
 
-    uint16 private constant REQUEST_CONFIRMATIONS = 3;
     bytes32 private immutable i_gasLane =
         0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c;
-    uint32 private immutable i_callbackGasLimit = 1000000;
-    uint64 private immutable i_subscriptionId = 7041;
+    uint32 private immutable i_callbackGasLimit = 3000000;
+    uint64 private immutable i_subscriptionId = 7200;
 
     uint8 internal s_numCards = 4;
     uint8 s_playerValue;
     uint8 s_dealerValue;
+
+    uint16 private constant REQUEST_CONFIRMATIONS = 3;
+
+    uint128 constant BID_FEE = 0.001 ether;
+
     uint256[] internal s_randomResult;
     uint256 internal desiredRange = 52;
     uint256 public s_requestId;
+
     address s_owner;
 
     Card[52] public deck;
@@ -77,6 +84,7 @@ contract Blackjack is VRFConsumerBaseV2 {
     }
 
     constructor()
+        payable
         VRFConsumerBaseV2(0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625)
     {
         COORDINATOR = VRFCoordinatorV2Interface(
@@ -117,6 +125,12 @@ contract Blackjack is VRFConsumerBaseV2 {
     }
 
     function dealCards() public returns (uint256) {
+        // if (msg.value != BID_FEE) {
+        //     revert Blackjack__MustSendBidFee(BID_FEE);
+        // }
+        if (!gameStarted) {
+            revert MustStartGameFirst();
+        }
         s_requestId = COORDINATOR.requestRandomWords(
             i_gasLane, // keyHash
             i_subscriptionId,
