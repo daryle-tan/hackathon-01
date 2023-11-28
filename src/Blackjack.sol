@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.19;
 
 import {LinkTokenInterface} from "@chainlink/contracts/src/v0.8/interfaces/LinkTokenInterface.sol";
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
@@ -52,7 +52,7 @@ contract Blackjack is VRFConsumerBaseV2 {
 
     bytes32 private immutable i_gasLane =
         0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c;
-    uint32 private immutable i_callbackGasLimit = 3000000;
+    uint32 private immutable i_callbackGasLimit = 2500000;
     uint64 private immutable i_subscriptionId = 7200;
 
     uint8 internal s_numCards = 4;
@@ -71,12 +71,13 @@ contract Blackjack is VRFConsumerBaseV2 {
 
     Card[52] public deck;
 
-    event Blackjack__RandomWordsRequested(uint256 indexed requestId);
+    event Blackjack__RandomWordsRequested(uint256 indexed _requestId);
     event Blackjack__ReturnedRandomness(uint256[]);
     event Blackjack__PlayerWins();
     event Blackjack__Push();
     event Blackjack__DealerWins();
-    event Blackjack__CardValue(uint8 cardValue);
+    event Blackjack__CardValue(uint8 _cardValue);
+    event Blackjack__GameHasStarted(bool _gameStarted);
 
     modifier onlyOwner() {
         require(msg.sender == s_owner);
@@ -122,6 +123,7 @@ contract Blackjack is VRFConsumerBaseV2 {
         dealCards();
         gameStarted = true;
         playerTurn = true;
+        emit Blackjack__GameHasStarted(gameStarted);
     }
 
     function dealCards() public returns (uint256) {
