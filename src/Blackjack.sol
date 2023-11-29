@@ -52,7 +52,7 @@ contract Blackjack is VRFConsumerBaseV2 {
 
     bytes32 private immutable i_gasLane =
         0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c;
-    uint32 private immutable i_callbackGasLimit = 2500000;
+
     uint64 private immutable i_subscriptionId = 7200;
 
     uint8 internal s_numCards = 4;
@@ -60,24 +60,24 @@ contract Blackjack is VRFConsumerBaseV2 {
     uint8 s_dealerValue;
 
     uint16 private constant REQUEST_CONFIRMATIONS = 3;
+    uint32 constant callbackGasLimit = 2500000;
 
-    uint128 constant BID_FEE = 0.001 ether;
+    // uint128 constant BID_FEE = 0.001 ether;
 
-    uint256[] internal s_randomResult;
+    Card[] s_randomResult;
     uint256 internal desiredRange = 52;
     uint256 public s_requestId;
 
     address s_owner;
 
-    Card[52] public deck;
+    Card[] public deck;
 
-    event Blackjack__RandomWordsRequested(uint256 indexed _requestId);
-    event Blackjack__ReturnedRandomness(uint256[]);
+    event Blackjack__RandomWordsRequested(uint256 indexed requestId);
+    event Blackjack__ReturnedRandomness(Card[]);
     event Blackjack__PlayerWins();
     event Blackjack__Push();
     event Blackjack__DealerWins();
-    event Blackjack__CardValue(uint8 _cardValue);
-    event Blackjack__GameHasStarted(bool _gameStarted);
+    event Blackjack__CardValue(uint8 cardValue);
 
     modifier onlyOwner() {
         require(msg.sender == s_owner);
@@ -85,7 +85,6 @@ contract Blackjack is VRFConsumerBaseV2 {
     }
 
     constructor()
-        payable
         VRFConsumerBaseV2(0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625)
     {
         COORDINATOR = VRFCoordinatorV2Interface(
@@ -106,11 +105,11 @@ contract Blackjack is VRFConsumerBaseV2 {
             // check for aces and assign value of 1
             // Initialize card for each index of the deck array
             if (rankValue == 0) {
-                deck[i] = Card(cardRank, cardSuit, 1);
+                deck.push(Card(cardRank, cardSuit, 1));
             } else if (rankValue >= 1 && rankValue <= 8) {
-                deck[i] = Card(cardRank, cardSuit, rankValue + 1);
+                deck.push(Card(cardRank, cardSuit, rankValue + 1));
             } else {
-                deck[i] = Card(cardRank, cardSuit, 10);
+                deck.push(Card(cardRank, cardSuit, 10));
             }
         }
     }
@@ -120,24 +119,21 @@ contract Blackjack is VRFConsumerBaseV2 {
         if (s_numCards != 4) {
             s_numCards = 4;
         }
-        dealCards();
+        // dealCards();
         gameStarted = true;
         playerTurn = true;
-        emit Blackjack__GameHasStarted(gameStarted);
     }
 
     function dealCards() public returns (uint256) {
-        // if (msg.value != BID_FEE) {
-        //     revert Blackjack__MustSendBidFee(BID_FEE);
-        // }
         if (!gameStarted) {
             revert MustStartGameFirst();
         }
+
         s_requestId = COORDINATOR.requestRandomWords(
             i_gasLane, // keyHash
             i_subscriptionId,
             REQUEST_CONFIRMATIONS,
-            i_callbackGasLimit,
+            callbackGasLimit,
             s_numCards
         );
         emit Blackjack__RandomWordsRequested(s_requestId);
@@ -152,19 +148,15 @@ contract Blackjack is VRFConsumerBaseV2 {
         if (requestId != s_requestId) {
             revert Blackjack__IncorrectRequestId(requestId);
         }
-        s_randomResult = randomWords;
-
-        Card[52] memory selectedCards;
+        uint256 cardIndex;
         // Process each random number received
-        for (uint256 i = 0; i < s_randomResult.length; i++) {
+        for (uint256 i = 0; i < randomWords.length; i++) {
             // Ensure the random number is within the desired range (0-51)
-            uint256 cardIndex = s_randomResult[i] % desiredRange;
-            // Get the card from the deck at the randomly generated index
-            // and add to selectedCards array
-            selectedCards[i] = deck[cardIndex];
-            emit Blackjack__CardValue(deck[cardIndex].cardValue);
+            cardIndex = randomWords[i] % desiredRange;
+            s_randomResult.push(deck[cardIndex]);
         }
-        emit Blackjack__ReturnedRandomness(randomWords);
+
+        emit Blackjack__ReturnedRandomness(s_randomResult);
     }
 
     // create a function for player to hit
