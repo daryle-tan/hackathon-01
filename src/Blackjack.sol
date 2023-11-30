@@ -13,7 +13,8 @@ contract Blackjack is VRFConsumerBaseV2 {
     error Blackjack__NeedToSetNumCardsToOne();
     error Blackjack__NotPlayerTurn(bool);
     error Blackjack__MustSendBidFee(uint128);
-    error MustStartGameFirst();
+    error Blackjack__MustStartGameFirst();
+    error Blackjack__CardsAlreadyDealt();
 
     VRFCoordinatorV2Interface immutable COORDINATOR;
     LinkTokenInterface immutable LINKTOKEN;
@@ -47,6 +48,7 @@ contract Blackjack is VRFConsumerBaseV2 {
     }
 
     bool gameStarted;
+    bool cardsAlreadyDealt;
     bool playerTurn;
     bool dealerTurn;
 
@@ -60,7 +62,7 @@ contract Blackjack is VRFConsumerBaseV2 {
     uint8 s_dealerValue;
 
     uint16 private constant REQUEST_CONFIRMATIONS = 3;
-    uint32 constant callbackGasLimit = 2500000;
+    uint32 constant CALLBACK_GAS_LIMIT = 2500000;
 
     // uint128 constant BID_FEE = 0.001 ether;
 
@@ -126,16 +128,19 @@ contract Blackjack is VRFConsumerBaseV2 {
 
     function dealCards() public returns (uint256) {
         if (!gameStarted) {
-            revert MustStartGameFirst();
+            revert Blackjack__MustStartGameFirst();
         }
-
+        if (cardsAlreadyDealt) {
+            revert Blackjack__CardsAlreadyDealt();
+        }
         s_requestId = COORDINATOR.requestRandomWords(
             i_gasLane, // keyHash
             i_subscriptionId,
             REQUEST_CONFIRMATIONS,
-            callbackGasLimit,
+            CALLBACK_GAS_LIMIT,
             s_numCards
         );
+        cardsAlreadyDealt = true;
         emit Blackjack__RandomWordsRequested(s_requestId);
         return s_requestId;
     }
@@ -151,11 +156,10 @@ contract Blackjack is VRFConsumerBaseV2 {
         uint256 cardIndex;
         // Process each random number received
         for (uint256 i = 0; i < randomWords.length; i++) {
-            // Ensure the random number is within the desired range (0-51)
-            cardIndex = randomWords[i] % desiredRange;
+            // Ensure the random number is within the desired range (0-51) or 52
+            cardIndex = randomWords[i] % deck.length;
             s_randomResult.push(deck[cardIndex]);
         }
-
         emit Blackjack__ReturnedRandomness(s_randomResult);
     }
 
@@ -236,9 +240,9 @@ contract Blackjack is VRFConsumerBaseV2 {
         )
     {
         return (
-            rankToString(deck[1].rank),
-            suitToString(deck[1].suit),
-            deck[1].cardValue
+            rankToString(deck[4].rank),
+            suitToString(deck[2].suit),
+            deck[3].cardValue
         );
     }
 
@@ -254,5 +258,9 @@ contract Blackjack is VRFConsumerBaseV2 {
         if (_suit == Suit.Clubs) return "Clubs";
 
         return ""; // Return empty string if none matches
+    }
+
+    function getDeck() external view returns (Card[] memory) {
+        return deck;
     }
 }
