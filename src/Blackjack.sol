@@ -230,6 +230,10 @@ contract Blackjack is VRFConsumerBaseV2 {
         //   s_dealerValue = 0;
     }
 
+    function getRandomResult() public view returns (Card[] memory) {
+        return s_randomResult;
+    }
+
     function getStruck()
         external
         view
