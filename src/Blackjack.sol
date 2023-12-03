@@ -10,9 +10,8 @@ contract Blackjack is VRFConsumerBaseV2 {
     error Blackjack__IncorrectRequestId(uint256);
     error Blackjack__RandomCardsNotYetGenerated();
     error Blackjack__NoWinnersYet();
-    error Blackjack__NeedToSetNumCardsToOne();
     error Blackjack__NotPlayerTurn(bool);
-    error Blackjack__MustSendBidFee(uint128);
+    error Blackjack__IndexOutOfRange(string);
     error Blackjack__MustStartGameFirst();
     error Blackjack__CardsAlreadyDealt();
 
@@ -74,15 +73,14 @@ contract Blackjack is VRFConsumerBaseV2 {
 
     address s_owner;
 
-    // Card[] public deck;
     // mapping(uint256 => Card) public s_randomResult;
     mapping(uint256 => Card) public deck;
 
     event Blackjack__RandomWordsRequested(uint256 indexed requestId);
     event Blackjack__ReturnedRandomness(Card[]);
-    event Blackjack__ReturnedFirstRandomFourCards(Card[]);
+    event Blackjack__ReturnedFirstRandomFourCards(Card, Card, Card, Card);
     event Blackjack__PlayerWins();
-    event Blackjack__Push();
+    event Blackjack__PushNoWinner();
     event Blackjack__DealerWins();
     event Blackjack__CardValue(uint8 cardValue);
 
@@ -166,23 +164,29 @@ contract Blackjack is VRFConsumerBaseV2 {
         for (uint256 i = 0; i < randomWords.length; i++) {
             // Ensure the random number is within the desired range (0-51) or 52
             cardIndex = randomWords[i] % DESIRED_RANGE;
-            if (i < 4) {
-                s_firstRandomFourCards.push(deck[cardIndex]);
-            } else {
-                s_randomResult.push(deck[cardIndex]);
-            }
+            s_randomResult.push(deck[cardIndex]);
         }
         counter += 3;
-        emit Blackjack__ReturnedFirstRandomFourCards(s_firstRandomFourCards);
+
+        emit Blackjack__ReturnedFirstRandomFourCards(
+            s_randomResult[0],
+            s_randomResult[1],
+            s_randomResult[2],
+            s_randomResult[3]
+        );
         emit Blackjack__ReturnedRandomness(s_randomResult);
     }
 
     // create a function for player to hit
-    function playerHitCard() external {
+    function playerHitCard() external returns (Card memory) {
         if (!playerTurn) {
             revert Blackjack__NotPlayerTurn(playerTurn);
         }
         counter++;
+        if (counter > s_randomResult.length) {
+            revert Blackjack__IndexOutOfRange("Index out of bounds");
+        }
+        return s_randomResult[counter];
     }
 
     // create function for standing
@@ -199,7 +203,7 @@ contract Blackjack is VRFConsumerBaseV2 {
             emit Blackjack__PlayerWins();
             performUpkeep();
         } else if (s_dealerValue == s_playerValue) {
-            emit Blackjack__Push();
+            emit Blackjack__PushNoWinner();
             performUpkeep();
         } else if (s_dealerValue > s_playerValue && s_dealerValue <= 21) {
             emit Blackjack__DealerWins();
