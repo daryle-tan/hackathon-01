@@ -64,10 +64,10 @@ contract Blackjack is VRFConsumerBaseV2 {
 
     uint16 private constant REQUEST_CONFIRMATIONS = 3;
     uint32 constant CALLBACK_GAS_LIMIT = 2500000;
-
-    // uint128 constant BID_FEE = 0.001 ether;
+    uint256 constant DESIRED_RANGE = 52;
 
     Card[] s_randomResult;
+    Card[] s_firstRandomFourCards;
 
     uint256 internal desiredRange = 52;
     uint256 public s_requestId;
@@ -80,6 +80,7 @@ contract Blackjack is VRFConsumerBaseV2 {
 
     event Blackjack__RandomWordsRequested(uint256 indexed requestId);
     event Blackjack__ReturnedRandomness(Card[]);
+    event Blackjack__ReturnedFirstRandomFourCards(Card[]);
     event Blackjack__PlayerWins();
     event Blackjack__Push();
     event Blackjack__DealerWins();
@@ -123,7 +124,7 @@ contract Blackjack is VRFConsumerBaseV2 {
         }
     }
 
-    // create function to start game
+    // function to start game
     function startGame() public {
         if (s_numCards != 52) {
             s_numCards = 52;
@@ -147,7 +148,7 @@ contract Blackjack is VRFConsumerBaseV2 {
         );
         cardsAlreadyDealt = true;
         playerTurn = true;
-        // s_numCards = 1;
+
         emit Blackjack__RandomWordsRequested(s_requestId);
         return s_requestId;
     }
@@ -164,11 +165,15 @@ contract Blackjack is VRFConsumerBaseV2 {
         // Process each random number received
         for (uint256 i = 0; i < randomWords.length; i++) {
             // Ensure the random number is within the desired range (0-51) or 52
-            cardIndex = randomWords[i] % 52;
-            s_randomResult.push(deck[cardIndex]);
-            // s_randomResult = deck[cardIndex];
+            cardIndex = randomWords[i] % DESIRED_RANGE;
+            if (i < 4) {
+                s_firstRandomFourCards.push(deck[cardIndex]);
+            } else {
+                s_randomResult.push(deck[cardIndex]);
+            }
         }
-        // s_requestId = 0;
+        counter += 3;
+        emit Blackjack__ReturnedFirstRandomFourCards(s_firstRandomFourCards);
         emit Blackjack__ReturnedRandomness(s_randomResult);
     }
 
@@ -189,7 +194,6 @@ contract Blackjack is VRFConsumerBaseV2 {
 
     // create a function for dealer to hits
     function dealerHitCard() external {
-        // set s_numCards to 1 and call requestRandomWords and fulfillRandomWords
         counter++;
         if (s_dealerValue > 21) {
             emit Blackjack__PlayerWins();
