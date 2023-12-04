@@ -3,17 +3,21 @@ pragma solidity ^0.8.19;
 
 import {LinkTokenInterface} from "@chainlink/contracts/src/v0.8/interfaces/LinkTokenInterface.sol";
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
-import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
-import "forge-std/console.sol";
+import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
+import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/AutomationCompatible.sol";
 
-contract Blackjack is VRFConsumerBaseV2 {
+contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
     error Blackjack__IncorrectRequestId(uint256);
     error Blackjack__RandomCardsNotYetGenerated();
-    error Blackjack__NoWinnersYet();
     error Blackjack__NotPlayerTurn(bool);
     error Blackjack__IndexOutOfRange(string);
     error Blackjack__MustStartGameFirst();
     error Blackjack__CardsAlreadyDealt();
+    error Blackjack__MustDealCards(bool);
+    error Blackjack__DealerTurn();
+    error Blackjack__StillPlayerTurn(bool);
+    error Blackjack__NotDealerTurn(bool);
+    error Blackjack__CardHasAlreadyBeenPlayed();
 
     VRFCoordinatorV2Interface immutable COORDINATOR;
     LinkTokenInterface immutable LINKTOKEN;
@@ -44,36 +48,34 @@ contract Blackjack is VRFConsumerBaseV2 {
         Rank rank;
         Suit suit;
         uint8 cardValue;
+        bool hasBeenPlayed;
     }
 
     bool gameStarted;
     bool cardsAlreadyDealt;
     bool playerTurn;
     bool dealerTurn;
+    bool playerWins;
+    bool dealerWins;
 
     bytes32 private immutable i_gasLane =
         0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c;
-
     uint64 private immutable i_subscriptionId = 7200;
+    uint16 private constant REQUEST_CONFIRMATIONS = 3;
+    uint32 private constant CALLBACK_GAS_LIMIT = 2500000;
+    uint256 private constant DESIRED_RANGE = 52;
 
     uint8 internal s_numCards = 52;
-    uint8 s_playerValue;
-    uint8 s_dealerValue;
+    uint8 s_dealerValue = 0;
+    uint8 s_playerValue = 0;
     uint256 counter = 0;
-
-    uint16 private constant REQUEST_CONFIRMATIONS = 3;
-    uint32 constant CALLBACK_GAS_LIMIT = 2500000;
-    uint256 constant DESIRED_RANGE = 52;
-
-    Card[] s_randomResult;
-    Card[] s_firstRandomFourCards;
-
     uint256 internal desiredRange = 52;
     uint256 public s_requestId;
 
+    Card[] public s_randomResult;
+
     address s_owner;
 
-    // mapping(uint256 => Card) public s_randomResult;
     mapping(uint256 => Card) public deck;
 
     event Blackjack__RandomWordsRequested(uint256 indexed requestId);
@@ -83,6 +85,8 @@ contract Blackjack is VRFConsumerBaseV2 {
     event Blackjack__PushNoWinner();
     event Blackjack__DealerWins();
     event Blackjack__CardValue(uint8 cardValue);
+    event Blackjack__PlayerHit(Rank, Suit, uint8);
+    event Blackjack__PlayerStands();
 
     modifier onlyOwner() {
         require(msg.sender == s_owner);
@@ -106,8 +110,8 @@ contract Blackjack is VRFConsumerBaseV2 {
             for (uint256 j = 0; j < 4; j++) {
                 Rank cardRank = Rank(i);
                 Suit cardSuit = Suit(j);
-
                 uint8 value;
+
                 if (i == uint256(Rank.Ace)) {
                     value = 1;
                 } else if (i >= uint256(Rank.Two) && i <= uint256(Rank.Nine)) {
@@ -116,7 +120,7 @@ contract Blackjack is VRFConsumerBaseV2 {
                     value = 10;
                 }
 
-                deck[cardIndex] = Card(cardRank, cardSuit, value);
+                deck[cardIndex] = Card(cardRank, cardSuit, value, false);
                 cardIndex++;
             }
         }
@@ -130,6 +134,7 @@ contract Blackjack is VRFConsumerBaseV2 {
         gameStarted = true;
     }
 
+    // function to generate 52 random numbers
     function dealCards() public returns (uint256) {
         if (!gameStarted) {
             revert Blackjack__MustStartGameFirst();
@@ -151,7 +156,8 @@ contract Blackjack is VRFConsumerBaseV2 {
         return s_requestId;
     }
 
-    // implement the VRF to randomly select cards from the deck
+    /* implement the VRF to randomly select cards from the deck and assign them to s_randomResult 
+    and increment counter to 3 which represents index of the first 4 cards in s_randomResult */
     function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords)
         internal
         override
@@ -164,9 +170,27 @@ contract Blackjack is VRFConsumerBaseV2 {
         for (uint256 i = 0; i < randomWords.length; i++) {
             // Ensure the random number is within the desired range (0-51) or 52
             cardIndex = randomWords[i] % DESIRED_RANGE;
-            s_randomResult.push(deck[cardIndex]);
+            Card memory card = deck[cardIndex];
+            s_randomResult.push(card);
+        }
+
+        if (counter > s_randomResult.length) {
+            revert Blackjack__IndexOutOfRange("Index out of bounds");
         }
         counter += 3;
+        if (s_randomResult[counter].hasBeenPlayed) {
+            revert Blackjack__CardHasAlreadyBeenPlayed();
+        }
+
+        s_randomResult[0].hasBeenPlayed = true;
+        s_randomResult[1].hasBeenPlayed = true;
+        s_randomResult[2].hasBeenPlayed = true;
+        s_randomResult[3].hasBeenPlayed = true;
+
+        s_playerValue += s_randomResult[0].cardValue;
+        s_dealerValue += s_randomResult[1].cardValue;
+        s_playerValue += s_randomResult[2].cardValue;
+        s_dealerValue += s_randomResult[3].cardValue;
 
         emit Blackjack__ReturnedFirstRandomFourCards(
             s_randomResult[0],
@@ -177,66 +201,118 @@ contract Blackjack is VRFConsumerBaseV2 {
         emit Blackjack__ReturnedRandomness(s_randomResult);
     }
 
-    // create a function for player to hit
+    // function for player to hit
     function playerHitCard() external returns (Card memory) {
         if (!playerTurn) {
             revert Blackjack__NotPlayerTurn(playerTurn);
         }
         counter++;
+
         if (counter > s_randomResult.length) {
             revert Blackjack__IndexOutOfRange("Index out of bounds");
         }
+        if (s_randomResult[counter].hasBeenPlayed) {
+            revert Blackjack__CardHasAlreadyBeenPlayed();
+        }
+        s_randomResult[counter].hasBeenPlayed = true;
+        s_playerValue += s_randomResult[counter].cardValue;
+
+        emit Blackjack__PlayerHit(
+            s_randomResult[counter].rank,
+            s_randomResult[counter].suit,
+            s_randomResult[counter].cardValue
+        );
         return s_randomResult[counter];
     }
 
-    // create function for standing
+    // function for standing
     function standHand() external {
+        if (!cardsAlreadyDealt) {
+            revert Blackjack__MustDealCards(cardsAlreadyDealt);
+        }
+        if (!playerTurn) {
+            revert Blackjack__NotPlayerTurn(playerTurn);
+        }
         playerTurn = false;
+
+        if (dealerTurn) {
+            revert Blackjack__DealerTurn();
+        }
         dealerTurn = true;
-        // s_dealerValue += deck[cardIndex].cardValue;
+        emit Blackjack__PlayerStands();
     }
 
-    // create a function for dealer to hits
-    function dealerHitCard() external {
+    // function for dealer to hit which will be called through automation
+    function dealerHitCard() public onlyOwner {
+        if (playerTurn) {
+            revert Blackjack__StillPlayerTurn(playerTurn);
+        }
+        if (!dealerTurn) {
+            revert Blackjack__NotDealerTurn(dealerTurn);
+        }
         counter++;
+        if (s_randomResult[counter].hasBeenPlayed) {
+            revert Blackjack__CardHasAlreadyBeenPlayed();
+        }
+        s_randomResult[counter].hasBeenPlayed = true;
+        s_dealerValue += s_randomResult[counter].cardValue;
+
         if (s_dealerValue > 21) {
             emit Blackjack__PlayerWins();
-            performUpkeep();
+            gameOver();
         } else if (s_dealerValue == s_playerValue) {
             emit Blackjack__PushNoWinner();
-            performUpkeep();
+            gameOver();
         } else if (s_dealerValue > s_playerValue && s_dealerValue <= 21) {
             emit Blackjack__DealerWins();
-            performUpkeep();
+            gameOver();
         }
     }
 
     function checkUpkeep(
-        bytes memory /* checkData */
+        bytes calldata /* checkData */
     )
         public
         view
+        override
         returns (
             bool upkeepNeeded,
             bytes memory /* performData */
         )
     {
-        bool playerWins = s_playerValue == 21;
-        bool dealerWins = s_dealerValue == 21;
-        upkeepNeeded = (playerWins || dealerWins);
+        uint256 previousCounter = counter;
+        upkeepNeeded = (dealerTurn && (counter > previousCounter));
         return (upkeepNeeded, "0x0");
     }
 
-    // create logic to bust or win
-    function performUpkeep() public /*bytes calldata*/
-    /* performData */
-    {
-        (bool upkeepNeeded, ) = checkUpkeep("");
-        if (!upkeepNeeded) {
-            revert Blackjack__NoWinnersYet();
+    // Calls dealerHitCard if upKeepNeeded
+    function performUpkeep(
+        bytes calldata /* performData */
+    ) external override {
+        if (s_dealerValue < s_playerValue && s_dealerValue < 21) {
+            dealerHitCard();
         }
-        //  s_playerValue = 0
-        //   s_dealerValue = 0;
+    }
+
+    function gameOver() internal {
+        resetCards(); // Reset s_randomResult values
+        s_playerValue = 0;
+        s_dealerValue = 0;
+        counter = 0;
+        gameStarted = false;
+        cardsAlreadyDealt = false;
+        dealerTurn = false;
+        playerWins = false;
+        dealerWins = false;
+    }
+
+    function resetCards() internal {
+        for (uint256 i = 0; i < s_randomResult.length; i++) {
+            s_randomResult[i].rank = Rank(0);
+            s_randomResult[i].suit = Suit(0);
+            s_randomResult[i].cardValue = 0;
+            s_randomResult[i].hasBeenPlayed = false;
+        }
     }
 
     function getRandomResult() public view returns (Card[] memory) {
@@ -273,25 +349,13 @@ contract Blackjack is VRFConsumerBaseV2 {
         return ""; // Return empty string if none matches
     }
 
-    function getDeck() external view returns (Card memory) {
-        return deck[counter];
+    function getDeck() external view returns (Card[] memory) {
+        uint256 size = 52;
+        Card[] memory values = new Card[](size);
+
+        for (uint256 i = 0; i < size; i++) {
+            values[i] = deck[i];
+        }
+        return values;
     }
 }
-
-// for (uint256 i = 0; i < 52; i++) {
-//             // Calculate rank and suit based on index
-//             Rank cardRank = Rank(i % 13); // 13 ranks
-//             Suit cardSuit = Suit(i / 13); // 4 suits
-
-//             // Convert enum to uint for comparison
-//             uint8 rankValue = uint8(cardRank);
-//             // check for aces and assign value of 1
-//             // Initialize card for each index of the deck array
-//             if (rankValue == 0) {
-//                 deck.push(Card(cardRank, cardSuit, 1));
-//             } else if (rankValue >= 1 && rankValue <= 8) {
-//                 deck.push(Card(cardRank, cardSuit, rankValue + 1));
-//             } else {
-//                 deck.push(Card(cardRank, cardSuit, 10));
-//             }
-//         }
