@@ -57,6 +57,7 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
     bool dealerTurn;
     bool playerWins;
     bool dealerWins;
+    bool noWinner;
 
     bytes32 private immutable i_gasLane =
         0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c;
@@ -132,6 +133,13 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
             s_numCards = 52;
         }
         gameStarted = true;
+        if (playerWins) {
+            playerWins = false;
+        } else if (noWinner) {
+            noWinner = false;
+        } else if (dealerWins) {
+            dealerWins = false;
+        }
     }
 
     // function to generate 52 random numbers
@@ -214,8 +222,15 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         if (s_randomResult[counter].hasBeenPlayed) {
             revert Blackjack__CardHasAlreadyBeenPlayed();
         }
+
         s_randomResult[counter].hasBeenPlayed = true;
         s_playerValue += s_randomResult[counter].cardValue;
+        if (s_playerValue > 21) {
+            dealerWins = true;
+            playerTurn = false;
+            gameOver();
+            emit Blackjack__DealerWins();
+        }
 
         emit Blackjack__PlayerHit(
             s_randomResult[counter].rank,
@@ -243,7 +258,7 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
     }
 
     // function for dealer to hit which will be called through automation
-    function dealerHitCard() public onlyOwner {
+    function dealerHitCard() public {
         if (playerTurn) {
             revert Blackjack__StillPlayerTurn(playerTurn);
         }
@@ -258,12 +273,15 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         s_dealerValue += s_randomResult[counter].cardValue;
 
         if (s_dealerValue > 21) {
+            playerWins = true;
             emit Blackjack__PlayerWins();
             gameOver();
         } else if (s_dealerValue == s_playerValue) {
+            noWinner = true;
             emit Blackjack__PushNoWinner();
             gameOver();
         } else if (s_dealerValue > s_playerValue && s_dealerValue <= 21) {
+            dealerWins = true;
             emit Blackjack__DealerWins();
             gameOver();
         }
@@ -280,8 +298,7 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
             bytes memory /* performData */
         )
     {
-        uint256 previousCounter = counter;
-        upkeepNeeded = (dealerTurn && (counter > previousCounter));
+        upkeepNeeded = (dealerTurn);
         return (upkeepNeeded, "0x0");
     }
 
@@ -299,11 +316,10 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         s_playerValue = 0;
         s_dealerValue = 0;
         counter = 0;
+        s_requestId = 0;
         gameStarted = false;
         cardsAlreadyDealt = false;
         dealerTurn = false;
-        playerWins = false;
-        dealerWins = false;
     }
 
     function resetCards() internal {
@@ -347,42 +363,12 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         return dealerTurn;
     }
 
-    function playerWins() public view returns (bool) {
+    function getPlayerWins() public view returns (bool) {
         return playerWins;
     }
 
     function getDealerWins() public view returns (bool) {
         return dealerWins;
-    }
-
-    function getStruck()
-        external
-        view
-        returns (
-            string memory,
-            string memory,
-            uint8
-        )
-    {
-        return (
-            rankToString(deck[4].rank),
-            suitToString(deck[2].suit),
-            deck[3].cardValue
-        );
-    }
-
-    function rankToString(Rank _rank) internal pure returns (string memory) {
-        if (_rank == Rank.Ace) return "Ace";
-        if (_rank == Rank.Two) return "Two";
-
-        return ""; // Return empty string if none matches
-    }
-
-    function suitToString(Suit _suit) internal pure returns (string memory) {
-        if (_suit == Suit.Spades) return "Spades";
-        if (_suit == Suit.Clubs) return "Clubs";
-
-        return ""; // Return empty string if none matches
     }
 
     function getDeck() external view returns (Card[] memory) {

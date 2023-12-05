@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.19;
 
 import "../Blackjack.sol";
-import "../APIConsumer.sol";
 import "./mocks/LinkToken.sol";
 import "forge-std/Test.sol";
 import "./mocks/MockOracle.sol";
 
 contract BlackjackTest is Test {
-    APIConsumer public apiConsumer;
     LinkToken public linkToken;
     MockOracle public mockOracle;
 
@@ -22,13 +20,6 @@ contract BlackjackTest is Test {
     function setUp() public {
         linkToken = new LinkToken();
         mockOracle = new MockOracle(address(linkToken));
-        apiConsumer = new APIConsumer(
-            address(mockOracle),
-            jobId,
-            fee,
-            address(linkToken)
-        );
-        linkToken.transfer(address(apiConsumer), AMOUNT);
     }
 
     function testDealCard() public {}
