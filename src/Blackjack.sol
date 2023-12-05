@@ -319,6 +319,42 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         return s_randomResult;
     }
 
+    function getPlayerValue() public view returns (uint8) {
+        return s_playerValue;
+    }
+
+    function getDealerValue() public view returns (uint8) {
+        return s_dealerValue;
+    }
+
+    function getCounter() public view returns (uint256) {
+        return counter;
+    }
+
+    function getGameStarted() public view returns (bool) {
+        return gameStarted;
+    }
+
+    function getCardsAlreadyDealt() public view returns (bool) {
+        return cardsAlreadyDealt;
+    }
+
+    function getPlayerTurn() public view returns (bool) {
+        return playerTurn;
+    }
+
+    function getDealerTurn() public view returns (bool) {
+        return dealerTurn;
+    }
+
+    function playerWins() public view returns (bool) {
+        return playerWins;
+    }
+
+    function getDealerWins() public view returns (bool) {
+        return dealerWins;
+    }
+
     function getStruck()
         external
         view
