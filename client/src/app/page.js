@@ -4,6 +4,7 @@ import { useState } from "react"
 import styles from "../styles/globals.css"
 import { abi } from "./components/constants.js"
 const ethers = require("ethers")
+import { ConnectButton } from "@rainbow-me/rainbowkit"
 
 export default function Home() {
     const [userAddress, setUserAddress] = useState("")
@@ -52,9 +53,7 @@ export default function Home() {
         <>
             {" "}
             {/* <main className="flex min-h-screen flex-col items-center justify-between p-24"> */}
-            <button className={styles.connectWallet} onClick={template}>
-                Connect Wallet
-            </button>
+            <ConnectButton />
             {/* </main> */}
         </>
     )

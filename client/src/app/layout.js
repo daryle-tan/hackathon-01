@@ -1,7 +1,8 @@
+// "use client"
+import "../styles/globals.css"
 import { Inter } from "next/font/google"
-import styles from "../styles/globals.css"
-import Image from "next/image"
-
+import Providers from "./providers"
+import "@rainbow-me/rainbowkit/styles.css"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
@@ -14,7 +15,7 @@ export default function RootLayout({ children }) {
     return (
         <html lang="en">
             <body className="body-background">
-                <div>{children}</div>
+                <Providers>{children}</Providers>
             </body>
         </html>
     )
