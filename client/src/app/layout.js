@@ -14,7 +14,7 @@ export default function RootLayout({ children }) {
     return (
         <html lang="en">
             <body className="body-background">
-                <div>Crypto Blackjack</div>
+                <div>{children}</div>
             </body>
         </html>
     )
