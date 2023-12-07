@@ -11,7 +11,7 @@ import {
     trustWallet,
     ledgerWallet,
 } from "@rainbow-me/rainbowkit/wallets"
-import { configureChains, createConfig, WagmiConfig } from "wagmi"
+import { chain, configureChains, createConfig, WagmiConfig } from "wagmi"
 import { sepolia } from "wagmi/chains"
 import { publicProvider } from "wagmi/providers/public"
 
@@ -29,7 +29,7 @@ const { wallets } = getDefaultWallets({
 })
 
 const demoAppInfo = {
-    appName: "Rainbowkit Demo",
+    appName: "Blackjack",
 }
 
 const connectors = connectorsForWallets([

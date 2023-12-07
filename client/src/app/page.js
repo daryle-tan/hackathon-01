@@ -2,59 +2,51 @@
 
 import { useState } from "react"
 import styles from "../styles/globals.css"
-import { abi } from "./components/constants.js"
-const ethers = require("ethers")
 import { ConnectButton } from "@rainbow-me/rainbowkit"
+import {
+    useAccount,
+    usePrepareContractWrite,
+    useContractWrite,
+    useWaitForTransaction,
+    useContractRead,
+} from "wagmi"
+import StartGameButton from "./components/StartGameButton"
+import { abi } from "./components/contract-abi.js"
+const ethers = require("ethers")
 
 export default function Home() {
-    const [userAddress, setUserAddress] = useState("")
-    const [account, setAccount] = useState("Not Connected")
-    const [isConnected, setIsConnected] = useState(false)
-    const [isLoading, setIsLoading] = useState(false)
-    const [state, setState] = useState({
-        provider: null,
-        signer: null,
-        contract: null,
+    const [playerCardValue, setPlayerCardValue] = useState(0)
+    const [dealerCardValue, setDealerCardValue] = useState(0)
+    const [playerWins, setPlayerWins] = useState(false)
+    const [dealerWins, setDealerWins] = useState(false)
+    const [noWinner, setNoWinner] = useState(false)
+    const [gameStarted, setGameStarted] = useState(false)
+    const [cardsAlreadyDealt, setCardsAlreadyDealt] = useState(false)
+    const [playerTurn, setPlayerTurn] = useState(false)
+    const [dealerTurn, setDealerTurn] = useState(false)
+
+    const { isConnected } = useAccount()
+    const account = useAccount({
+        onConnect({ address, connector, isReconnected }) {
+            console.log("Connected", { address, connector, isReconnected })
+        },
     })
 
-    const template = async () => {
-        const contractAddress = "0x1b72080fC9ed5eB162b9C099686e46CEA2C019fc"
-        const contractABI = abi.abi
+    const { config } = usePrepareContractWrite({
+        addressOrName: "0x1b72080fC9ed5eB162b9C099686e46CEA2C019fc",
+        abi: abi,
+        functionName: "startGame",
+    })
 
-        try {
-            const { ethereum } = window
-            const account = await ethereum.request({
-                method: "eth_requestAccounts",
-            })
+    const { write } = useContractWrite(config)
 
-            window.ethereum.on("accountsChanged", () => {
-                window.location.reload()
-            })
-            const address = ethers.utils.getAddress(account[0])
-
-            setAccount(account)
-            const provider = new ethers.providers.Web3Provider(ethereum)
-            const signer = provider.getSigner()
-
-            const contract = new ethers.Contract(
-                contractAddress,
-                contractABI,
-                signer
-            )
-            console.log(address)
-            setState({ provider, signer, contract })
-            setIsConnected(true)
-            setUserAddress(address)
-        } catch (error) {
-            console.log(error)
-        }
-    }
     return (
         <>
-            {" "}
-            {/* <main className="flex min-h-screen flex-col items-center justify-between p-24"> */}
-            <ConnectButton />
-            {/* </main> */}
+            <div className="hi">Hiiiiiiiii</div>
+            {/* <ConnectButton /> */}
+
+            {isConnected && <StartGameButton />}
+            <StartGameButton />
         </>
     )
 }
