@@ -3,6 +3,7 @@ import styles from "@/styles/Home.module.css"
 import abi from "../contractJson/Blackjack.json"
 import { useState } from "react"
 import { ethers } from "ethers"
+
 export default function Home() {
     const [userAddress, setUserAddress] = useState("")
     const [account, setAccount] = useState("Not Connected")
@@ -19,36 +20,39 @@ export default function Home() {
         const contractABI = abi.abi
 
         try {
+            const { ethereum } = window
             const addresses = await window.ethereum.request({
                 method: "eth_requestAccounts",
             })
 
-            // window.ethereum.on("accountsChanged", () => {
-            //     window.location.reload()
-            // })
-            const address = ethers.utils.getAddress(addresses[0])
+            // const address = ethers.utils.getAddress(addresses[0])
 
-            setAccount(true)
-            // const provider = new ethers.providers.Web3Provider(ethereum)
-            // const signer = provider.getSigner()
+            setAccount(addresses[0])
+            const provider = new ethers.BrowserProvider(window.ethereum)
+            const signer = provider.getSigner()
 
-            // const contract = new ethers.Contract(
-            //     contractAddress,
-            //     contractABI,
-            //     signer
-            // )
-            // console.log(provider, signer, contract)
-            // console.log(address)
-            // setState({ provider, signer, contract })
+            const contract = new ethers.Contract(
+                contractAddress,
+                contractABI,
+                signer
+            )
+            console.log(provider, signer, contract)
+            console.log(addresses[0])
+            setState({ provider, signer, contract })
             setIsConnected(true)
-            setUserAddress(address)
+            setUserAddress(addresses[0])
         } catch (error) {
             console.log(error)
         }
     }
 
-    const doSomething = () => {
-        console.log("hi")
+    const doSomething = async () => {
+        const addresses = await window.ethereum.request({
+            method: "eth_requestAccounts",
+        })
+        console.log(addresses[0])
+        // const address = await ethers.utils.getAddress(addresses[0])
+        // console.log(address)
     }
     return (
         <>
