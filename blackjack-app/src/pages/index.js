@@ -3,8 +3,18 @@ import styles from "@/styles/Home.module.css"
 import abi from "../contractJson/Blackjack.json"
 import { useState } from "react"
 import { ethers } from "ethers"
+import StartGameButton from "./components/StartGameButton"
 
 export default function Home() {
+    const [playerCardValue, setPlayerCardValue] = useState(0)
+    const [dealerCardValue, setDealerCardValue] = useState(0)
+    const [playerWins, setPlayerWins] = useState(false)
+    const [dealerWins, setDealerWins] = useState(false)
+    const [noWinner, setNoWinner] = useState(false)
+    const [gameStarted, setGameStarted] = useState(false)
+    const [cardsAlreadyDealt, setCardsAlreadyDealt] = useState(false)
+    const [playerTurn, setPlayerTurn] = useState(false)
+    const [dealerTurn, setDealerTurn] = useState(false)
     const [userAddress, setUserAddress] = useState("")
     const [account, setAccount] = useState("Not Connected")
     const [isConnected, setIsConnected] = useState(false)
@@ -29,7 +39,7 @@ export default function Home() {
 
             setAccount(addresses[0])
             const provider = new ethers.BrowserProvider(window.ethereum)
-            const signer = provider.getSigner()
+            const signer = await provider.getSigner()
 
             const contract = new ethers.Contract(
                 contractAddress,
@@ -80,6 +90,11 @@ export default function Home() {
                         Connect
                     </button>
                 )}
+                <StartGameButton
+                    gameStarted={gameStarted}
+                    setGameStarted={setGameStarted}
+                    state={state}
+                />
             </main>
         </>
     )
