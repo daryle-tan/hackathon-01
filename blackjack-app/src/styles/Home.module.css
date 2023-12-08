@@ -304,3 +304,11 @@
     font-size: 18px;
     cursor: pointer;
 }
+
+.dealersHand {
+    border: 2px solid black;
+}
+
+.playersHand {
+    border: 2px solid black;
+}
