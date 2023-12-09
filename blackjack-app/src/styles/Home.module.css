@@ -305,10 +305,44 @@
     cursor: pointer;
 }
 
+.topContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 95%;
+}
+
+.scoreContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+}
+
+.dealersHandDiv {
+    display: flex;
+    flex-direction: row;
+}
 .dealersHand {
     border: 2px solid black;
 }
 
+.playersHandDiv {
+    display: flex;
+    flex-direction: row;
+}
 .playersHand {
     border: 2px solid black;
+}
+
+.cardImage {
+    width: 100px;
+    height: 200px;
+    border-radius: 5px;
+}
+
+.buttonContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
