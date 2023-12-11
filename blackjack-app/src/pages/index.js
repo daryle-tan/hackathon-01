@@ -7,7 +7,8 @@ import StartGameButton from "./components/StartGameButton"
 import DealCardsButton from "./components/DealCardsButton"
 import PlayerHitButton from "./components/PlayerHitButton"
 import StandButton from "./components/StandButton"
-import GetDeck from "./components/GetDeck"
+import WhoWon from "./components/WhoWon"
+import GameOverModal from "./components/GameOverModal"
 
 export default function Home() {
     const [playerCardValue, setPlayerCardValue] = useState(0)
@@ -25,6 +26,8 @@ export default function Home() {
     const [account, setAccount] = useState("Not Connected")
     const [isConnected, setIsConnected] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
+    const [isGameOver, setIsGameOver] = useState(false)
+    const [counter, setCounter] = useState(0)
     const [state, setState] = useState({
         provider: null,
         signer: null,
@@ -35,10 +38,19 @@ export default function Home() {
         getPlayerCardValue()
         getDealerCardValue()
         getRandomResultArray()
-    }, [state])
+        getCounter()
+    }, [isGameOver, playerCardValue, dealerCardValue])
+
+    const openGameOverModal = () => {
+        setIsGameOver(true)
+    }
+
+    const closeGameOverModal = () => {
+        setIsGameOver(false)
+    }
 
     const template = async () => {
-        const contractAddress = "0x1b72080fC9ed5eB162b9C099686e46CEA2C019fc"
+        const contractAddress = "0xea48C0D85e038BC293Bb66D65c3204eC46FcFc33"
         const contractABI = abi.abi
 
         try {
@@ -68,12 +80,11 @@ export default function Home() {
     const getRandomResultArray = async () => {
         // try {
         const { contract } = state
-
         // Check if contract instance exists
         if (contract) {
             // Call a function to get the full array-like structure
             const result = await contract.getRandomResult()
-            console.log(result[0])
+            // console.log(result[0])
             result.map((card, index) => {
                 // Access card properties directly
                 let nestedProxy = card
@@ -167,9 +178,20 @@ export default function Home() {
         }
     }
 
-    function resetValues() {
-        setPlayerHand([])
-        setDealerHand([])
+    const getCounter = async () => {
+        try {
+            const { contract } = state
+
+            if (contract) {
+                const tx = await contract.getCounter()
+                setCounter(Number(tx))
+                console.log("dealer value:", Number(tx))
+            } else {
+                console.error("Contract instance not found", contract)
+            }
+        } catch (error) {
+            console.error("Error retrieving data:", error)
+        }
     }
 
     const cardImages = {
@@ -252,6 +274,7 @@ export default function Home() {
             3: "/KingOfDiamonds.webp",
         },
     }
+
     return (
         <>
             <Head>
@@ -274,10 +297,10 @@ export default function Home() {
                         setCardsAlreadyDealt={setCardsAlreadyDealt}
                         playerTurn={playerTurn}
                         setPlayerTurn={setPlayerTurn}
-                        playerCardValue={playerCardValue}
-                        setPlayerCardValue={setPlayerCardValue}
-                        dealerCardValue={dealerCardValue}
-                        setDealerCardValue={setDealerCardValue}
+                        isLoading={isLoading}
+                        setIsLoading={setIsLoading}
+                        getRandomResultArray={getRandomResultArray}
+                        setCounter={setCounter}
                     />
 
                     {isConnected ? (
@@ -296,63 +319,109 @@ export default function Home() {
                     )}
                 </div>
 
-                {!gameStarted && (
-                    <StartGameButton
-                        gameStarted={gameStarted}
-                        setGameStarted={setGameStarted}
-                        state={state}
-                    />
-                )}
+                {/* {!gameStarted && ( */}
+                <StartGameButton
+                    gameStarted={gameStarted}
+                    setGameStarted={setGameStarted}
+                    state={state}
+                    setIsGameOver={setIsGameOver}
+                />
+                {/* )} */}
 
-                {/* <div className={styles.scoreContainer}>
-                    <div>Dealer's Score: {dealerCardValue}</div>
-                    <div>Player's Score: {playerCardValue}</div>
-                </div> */}
                 <div className={styles.scoreContainer}>
                     <div>Dealer's Score: {dealerCardValue}</div>
                 </div>
-                <div className={styles.dealersHandDiv}>
-                    {dealerHand.map((card, index) => (
-                        <div key={index}>
-                            <img
-                                className={styles.cardImage}
-                                src={cardImages[card.rank][card.suit]}
-                                alt={`${card.rank} of ${card.suit}`}
-                            />
-                            {/* <p>Rank: {card.rank}</p>
+                {cardsAlreadyDealt ? (
+                    <div className={styles.dealersHandDiv}>
+                        {dealerHand.map((card, index) => (
+                            <div key={index}>
+                                <img
+                                    className={styles.cardImage}
+                                    src={cardImages[card.rank][card.suit]}
+                                    alt={`${card.rank} of ${card.suit}`}
+                                />
+                                {/* <p>Rank: {card.rank}</p>
                             <p>Suit: {card.suit}</p>
                             <p>Card Value: {card.cardValue}</p> */}
-                        </div>
-                    ))}
-                </div>
-
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div></div>
+                )}
                 <div className={styles.scoreContainer}>
                     <div>Player's Score: {playerCardValue}</div>
                 </div>
-                <div className={styles.playersHandDiv}>
-                    {playerHand.map((card, index) => (
-                        <div key={index}>
-                            <img
-                                className={styles.cardImage}
-                                src={cardImages[card.rank][card.suit]}
-                                alt={`${card.rank} of ${card.suit}`}
-                            />
-                        </div>
-                    ))}
-                </div>
+                {cardsAlreadyDealt ? (
+                    <div className={styles.playersHandDiv}>
+                        {playerHand.map((card, index) => (
+                            <div key={index}>
+                                <img
+                                    className={styles.cardImage}
+                                    src={cardImages[card.rank][card.suit]}
+                                    alt={`${card.rank} of ${card.suit}`}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div></div>
+                )}
 
                 <div className={styles.buttonContainer}>
                     <PlayerHitButton
                         state={state}
+                        playerHand={playerHand}
                         setPlayerHand={setPlayerHand}
+                        isLoading={isLoading}
+                        setIsLoading={setIsLoading}
+                        setPlayerCardValue={setPlayerCardValue}
+                        counter={counter}
+                        setCounter={setCounter}
+                        getPlayerCardValue={getPlayerCardValue}
+                        isGameOver={isGameOver}
                     />
-                    <StandButton state={state} />
+
+                    <StandButton
+                        state={state}
+                        setIsLoading={setIsLoading}
+                        isLoading={isLoading}
+                        getDealerCardValue={getDealerCardValue}
+                        isGameOver={isGameOver}
+                    />
                 </div>
 
                 <button onClick={getRandomResultArray}>
                     Get Random Result
                 </button>
-                <button onClick={resetValues}>Reset</button>
+
+                <WhoWon
+                    state={state}
+                    setIsGameOver={setIsGameOver}
+                    setPlayerWins={setPlayerWins}
+                    setDealerWins={setDealerWins}
+                    setGameStarted={setGameStarted}
+                />
+                {/* {isGameOver ? ( */}
+                <GameOverModal
+                    showGameOverModal={isGameOver}
+                    closeGameOverModal={closeGameOverModal}
+                    state={state}
+                    isGameOver={isGameOver}
+                    setIsGameOver={setIsGameOver}
+                    playerWins={playerWins}
+                    setPlayerWins={setPlayerWins}
+                    dealerWins={dealerWins}
+                    setDealerWins={setDealerWins}
+                    setPlayerHand={setPlayerHand}
+                    setDealerHand={setDealerHand}
+                    setCardsAlreadyDealt={setCardsAlreadyDealt}
+                    setCounter={setCounter}
+                    counter={counter}
+                />
+                {/* ) : (
+                    <div></div>
+                )} */}
             </main>
         </>
     )

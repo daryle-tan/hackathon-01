@@ -18,6 +18,8 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
     error Blackjack__StillPlayerTurn(bool);
     error Blackjack__NotDealerTurn(bool);
     error Blackjack__CardHasAlreadyBeenPlayed();
+    error Blackjack__NoMoreNumbersCanBeAdded();
+    error Black__GameHasAlreadyStarted();
 
     VRFCoordinatorV2Interface immutable COORDINATOR;
     LinkTokenInterface immutable LINKTOKEN;
@@ -132,6 +134,9 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         if (s_numCards != 52) {
             s_numCards = 52;
         }
+        if (gameStarted) {
+            revert Black__GameHasAlreadyStarted();
+        }
         gameStarted = true;
         if (playerWins) {
             playerWins = false;
@@ -189,16 +194,19 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         if (s_randomResult[counter].hasBeenPlayed) {
             revert Blackjack__CardHasAlreadyBeenPlayed();
         }
+        if (s_randomResult.length > 52) {
+            revert Blackjack__NoMoreNumbersCanBeAdded();
+        } else {
+            s_randomResult[0].hasBeenPlayed = true;
+            s_randomResult[1].hasBeenPlayed = true;
+            s_randomResult[2].hasBeenPlayed = true;
+            s_randomResult[3].hasBeenPlayed = true;
 
-        s_randomResult[0].hasBeenPlayed = true;
-        s_randomResult[1].hasBeenPlayed = true;
-        s_randomResult[2].hasBeenPlayed = true;
-        s_randomResult[3].hasBeenPlayed = true;
-
-        s_playerValue += s_randomResult[0].cardValue;
-        s_dealerValue += s_randomResult[1].cardValue;
-        s_playerValue += s_randomResult[2].cardValue;
-        s_dealerValue += s_randomResult[3].cardValue;
+            s_playerValue += s_randomResult[0].cardValue;
+            s_dealerValue += s_randomResult[1].cardValue;
+            s_playerValue += s_randomResult[2].cardValue;
+            s_dealerValue += s_randomResult[3].cardValue;
+        }
 
         emit Blackjack__ReturnedFirstRandomFourCards(
             s_randomResult[0],
@@ -323,12 +331,7 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
     }
 
     function resetCards() internal {
-        for (uint256 i = 0; i < s_randomResult.length; i++) {
-            s_randomResult[i].rank = Rank(0);
-            s_randomResult[i].suit = Suit(0);
-            s_randomResult[i].cardValue = 0;
-            s_randomResult[i].hasBeenPlayed = false;
-        }
+        delete s_randomResult;
     }
 
     function getRandomResult() public view returns (Card[] memory) {

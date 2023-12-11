@@ -1,7 +1,12 @@
 import React from "react"
 import styles from "../../styles/StartGameButton.module.css"
 
-function StartGameButton({ state, gameStarted, setGameStarted }) {
+function StartGameButton({
+    state,
+    gameStarted,
+    setGameStarted,
+    setIsGameOver,
+}) {
     const startGame = async () => {
         try {
             const { contract } = state
@@ -9,7 +14,11 @@ function StartGameButton({ state, gameStarted, setGameStarted }) {
             if (contract) {
                 // Trigger the startGame function
                 const tx = await contract.startGame()
-
+                setIsGameOver(false)
+                setPlayerHand([])
+                setDealerHand([])
+                setCardsAlreadyDealt(false)
+                setCounter(0)
                 setGameStarted(true)
                 console.log(
                     "Transaction details:",

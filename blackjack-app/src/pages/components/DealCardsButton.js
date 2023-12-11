@@ -1,5 +1,6 @@
 import React from "react"
 import styles from "../../styles/DealCardsButton.module.css"
+import LoadingModal from "./LoadingModal"
 
 export default function DealCardsButton({
     state,
@@ -7,13 +8,14 @@ export default function DealCardsButton({
     setCardsAlreadyDealt,
     playerTurn,
     setPlayerTurn,
-    playerCardValue,
-    setPlayerCardValue,
-    dealerCardValue,
-    setDealerCardValue,
+    isLoading,
+    setIsLoading,
+    getRandomResultArray,
+    setCounter,
 }) {
     const dealCards = async () => {
         try {
+            setIsLoading(true)
             const { contract } = state
             // Check if contract instance exists
             if (contract) {
@@ -22,6 +24,7 @@ export default function DealCardsButton({
                 console.log(contract)
                 setCardsAlreadyDealt(true)
                 setPlayerTurn(true)
+                setCounter(3)
                 console.log(
                     "Transaction details:",
                     tx,
@@ -33,13 +36,22 @@ export default function DealCardsButton({
             } else {
                 console.error("Contract instance not found", contract)
             }
+            getRandomResultArray()
+            setIsLoading(false)
         } catch (error) {
+            setIsLoading(false)
             console.error("Error calling dealCards function:", error)
         }
     }
     return (
-        <button className={styles.DealCardsButton} onClick={dealCards}>
-            Deal Cards
-        </button>
+        <>
+            {isLoading ? (
+                <LoadingModal />
+            ) : (
+                <button className={styles.DealCardsButton} onClick={dealCards}>
+                    Deal Cards
+                </button>
+            )}
+        </>
     )
 }
