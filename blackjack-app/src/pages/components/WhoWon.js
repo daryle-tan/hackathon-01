@@ -10,7 +10,12 @@ export default function WhoWon({
     useEffect(() => {
         getDealerWins()
         getPlayerWins()
-    }, [state])
+    }, [])
+
+    const getWhoWon = async () => {
+        getDealerWins()
+        getPlayerWins()
+    }
 
     const getDealerWins = async () => {
         try {
@@ -51,5 +56,5 @@ export default function WhoWon({
             console.error("Error calling dealCards function:", error)
         }
     }
-    return <button onClick={getPlayerWins}>Who Won?</button>
+    return <button onClick={getWhoWon}>Who Won?</button>
 }

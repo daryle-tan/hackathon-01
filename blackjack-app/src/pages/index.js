@@ -39,7 +39,8 @@ export default function Home() {
         getDealerCardValue()
         getRandomResultArray()
         getCounter()
-    }, [isGameOver, playerCardValue, dealerCardValue])
+        console.log("playerhand:", playerHand, dealerHand, counter)
+    }, [state, isGameOver, playerCardValue, dealerCardValue])
 
     const openGameOverModal = () => {
         setIsGameOver(true)
@@ -50,7 +51,7 @@ export default function Home() {
     }
 
     const template = async () => {
-        const contractAddress = "0xea48C0D85e038BC293Bb66D65c3204eC46FcFc33"
+        const contractAddress = "0x5A1920C96Fb506BFa3968CcE445D8392fE5a9DB6"
         const contractABI = abi.abi
 
         try {
@@ -68,7 +69,7 @@ export default function Home() {
                 signer
             )
             console.log(provider, signer, contract)
-            console.log(addresses[0])
+
             setState({ provider, signer, contract })
             setIsConnected(true)
             setUserAddress(addresses[0])
@@ -127,12 +128,8 @@ export default function Home() {
                     ])
                 }
             })
-            console.log(
-                "player's hand:",
-                playerHand,
-                "dealer's hand:",
-                dealerHand
-            )
+            getPlayerCardValue()
+            getDealerCardValue()
         }
     }
 

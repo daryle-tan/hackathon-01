@@ -6,6 +6,10 @@ function StartGameButton({
     gameStarted,
     setGameStarted,
     setIsGameOver,
+    setPlayerHand,
+    setDealerHand,
+    setCardsAlreadyDealt,
+    setCounter,
 }) {
     const startGame = async () => {
         try {
@@ -15,8 +19,8 @@ function StartGameButton({
                 // Trigger the startGame function
                 const tx = await contract.startGame()
                 setIsGameOver(false)
-                setPlayerHand([])
-                setDealerHand([])
+                setPlayerHand()
+                setDealerHand()
                 setCardsAlreadyDealt(false)
                 setCounter(0)
                 setGameStarted(true)

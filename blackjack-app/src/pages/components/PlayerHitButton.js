@@ -27,6 +27,7 @@ export default function PlayerHitButton({
             }
             setIsLoading(false)
             getRandomResult()
+            setCounter(counter + 1)
         } catch (error) {
             setIsLoading(false)
             console.error("Error calling dealCards function:", error)
@@ -35,33 +36,29 @@ export default function PlayerHitButton({
 
     const getRandomResult = async () => {
         const { contract } = state
-        if (contract) {
-            const result = await contract.getRandomResult()
-            if (counter >= 3 && result[counter]) {
-                let nestedProxy = result[counter]
-                const rank = Number(nestedProxy[0])
-                const suit = Number(nestedProxy[1])
-                const cardValue = Number(nestedProxy[2])
-                const hasBeenPlayed = nestedProxy[3]
-
-                if (
-                    // result[counter].hasBeenPlayed &&
-                    counter >= 3
-                    // playerHand.length === counter + 1
-                ) {
-                    setPlayerHand((prevPlayerHand) => [
-                        ...prevPlayerHand,
-                        { rank, suit, cardValue },
-                    ])
-                } else {
-                    console.log("Already added: ", nestedProxy)
-                }
-                setCounter(counter + 1)
-                console.log(result[counter].hasBeenPlayed)
+        const result = await contract.getRandomResult()
+        if (result.length > 0) {
+            let nestedProxy = result[counter]
+            const rank = Number(nestedProxy[0])
+            const suit = Number(nestedProxy[1])
+            const cardValue = Number(nestedProxy[2])
+            const hasBeenPlayed = nestedProxy[3]
+            if (
+                hasBeenPlayed &&
+                counter >= 3 &&
+                result[counter + 1] === playerHand.length
+            ) {
+                setPlayerHand((prevPlayerHand) => [
+                    ...prevPlayerHand,
+                    { rank, suit, cardValue },
+                ])
+            } else {
+                console.log("Already added: ", nestedProxy)
             }
-            getPlayerCardValue()
+            setCounter(counter + 1)
             console.log(result[counter], isGameOver)
         }
+        getPlayerCardValue()
     }
     return (
         <>
