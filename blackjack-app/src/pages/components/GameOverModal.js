@@ -13,10 +13,12 @@ function GameOverModal({
     setCardsAlreadyDealt,
     setCounter,
     counter,
+    setPlayerHand,
+    setDealerHand,
 }) {
     useEffect(() => {
         gameOverResult()
-    }, [state, counter, isGameOver])
+    }, [state])
 
     const gameOverResult = async () => {
         try {
@@ -25,23 +27,27 @@ function GameOverModal({
             if (contract) {
                 const tx = await contract.getPlayerWins()
                 if (tx) {
-                    setIsGameOver(true)
-                    setPlayerWins(true)
-                    setPlayerHand([])
-                    setDealerHand([])
-                    setCardsAlreadyDealt(false)
-                    setCounter(0)
-                    console.log("Transaction details:", tx)
+                    const gameOver = await setIsGameOver(true)
+                    const playerWinsSet = await setPlayerWins(true)
+                    const playerHandReset = await setPlayerHand([])
+                    const dealerHandReset = await setDealerHand([])
+                    const cardsAlreadyDealtReset = await setCardsAlreadyDealt(
+                        false
+                    )
+                    const counterReset = await setCounter(0)
+                    console.log("Transaction details tx:", tx)
                 }
                 const result = await contract.getDealerWins()
                 if (result) {
-                    setIsGameOver(true)
-                    setDealerWins(true)
-                    setPlayerHand([])
-                    setDealerHand([])
-                    setCardsAlreadyDealt(false)
-                    setCounter(0)
-                    console.log("Transaction details:", result)
+                    const gameOverD = await setIsGameOver(true)
+                    const dealerWinsSet = await setDealerWins(true)
+                    const playerHandReset = await setPlayerHand([])
+                    const dealerHandReset = await setDealerHand([])
+                    const cardsAlreadyDealtReset = await setCardsAlreadyDealt(
+                        false
+                    )
+                    const counterReset = await setCounter(0)
+                    console.log("Transaction details result:", result)
                 }
             } else {
                 console.error("Contract instance not found", contract)
@@ -52,48 +58,40 @@ function GameOverModal({
     }
     return (
         <>
-            {isGameOver && (
+            {isGameOver && playerWins && (
                 <div className={`modal ${showGameOverModal ? "show" : "hide"}`}>
-                    {playerWins && (
-                        <div className="modal-content">
-                            <span
-                                className="close"
-                                onClick={closeGameOverModal}
-                            >
-                                &times;
-                            </span>
-                            <h3>GAME OVER </h3>
-                            <p>Player Wins!</p>
-                        </div>
-                    )}
+                    <div className="modal-content">
+                        <span className="close" onClick={closeGameOverModal}>
+                            &times;
+                        </span>
+                        <h3>GAME OVER </h3>
+                        <p>Player Wins!</p>
+                    </div>
+                </div>
+            )}
 
-                    {dealerWins && (
-                        <div className="modal-content">
-                            <span
-                                className="close"
-                                onClick={closeGameOverModal}
-                            >
-                                &times;
-                            </span>
-                            <h3>GAME OVER </h3>
-                            <p>Dealer Wins!</p>
-                        </div>
-                    )}
+            {isGameOver && dealerWins && (
+                <div className={`modal ${showGameOverModal ? "show" : "hide"}`}>
+                    <div className="modal-content">
+                        <span className="close" onClick={closeGameOverModal}>
+                            &times;
+                        </span>
+                        <h3>GAME OVER </h3>
+                        <p>Dealer Wins!</p>
+                    </div>
+                </div>
+            )}
 
-                    {!playerWins && !dealerWins && isGameOver ? (
-                        <div className="modal-content">
-                            <span
-                                className="close"
-                                onClick={closeGameOverModal}
-                            >
-                                &times;
-                            </span>
-                            <h3>GAME OVER </h3>
-                            <p>Player Wins!</p>
-                        </div>
-                    ) : (
-                        <div></div>
-                    )}
+            {!playerWins && !dealerWins && isGameOver && (
+                <div className={`modal ${showGameOverModal ? "show" : "hide"}`}>
+                    <div className="modal-content">
+                        <span className="close" onClick={closeGameOverModal}>
+                            &times;
+                        </span>
+                        <h3>GAME OVER</h3>
+                        <p>Draw Game</p>
+                        <p> No Winner!</p>
+                    </div>
                 </div>
             )}
         </>

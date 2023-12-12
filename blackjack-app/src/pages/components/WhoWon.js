@@ -24,11 +24,11 @@ export default function WhoWon({
             if (contract) {
                 const tx = await contract.getDealerWins()
                 if (tx) {
-                    setIsGameOver(true)
-                    setDealerWins(true)
-                    setGameStarted(false)
+                    // setIsGameOver(true)
+                    // setDealerWins(true)
+                    // setGameStarted(false)
                 }
-                console.log("Transaction details:", tx)
+                console.log("Transaction details Dealer Wins:", tx)
             } else {
                 console.error("Contract instance not found", contract)
             }
@@ -43,12 +43,8 @@ export default function WhoWon({
 
             if (contract) {
                 const tx = await contract.getPlayerWins()
-                // if (tx) {
-                //     setIsGameOver(true)
-                //     setPlayerWins(true)
-                //     setGameStarted(false)
-                // }
-                console.log("Transaction details:", tx)
+
+                console.log("Transaction details Player Wins:", tx)
             } else {
                 console.error("Contract instance not found", contract)
             }

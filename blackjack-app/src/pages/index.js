@@ -34,13 +34,19 @@ export default function Home() {
         contract: null,
     })
 
-    useEffect(() => {
-        getPlayerCardValue()
-        getDealerCardValue()
-        getRandomResultArray()
-        getCounter()
-        console.log("playerhand:", playerHand, dealerHand, counter)
-    }, [state, isGameOver, playerCardValue, dealerCardValue])
+    useEffect(
+        () => {
+            getPlayerCardValue()
+            getDealerCardValue()
+            getRandomResultArray()
+            getCounter()
+            console.log("playerhand:", playerHand, dealerHand, counter)
+        },
+        [state, isGameOver, playerCardValue, dealerCardValue],
+        playerHand,
+        dealerHand,
+        counter
+    )
 
     const openGameOverModal = () => {
         setIsGameOver(true)
@@ -94,14 +100,14 @@ export default function Home() {
                 const cardValue = Number(nestedProxy[2])
                 const hasBeenPlayed = nestedProxy[3]
 
-                if (hasBeenPlayed && index == 0 && playerHand.length < 2) {
+                if (hasBeenPlayed && index === 0 && playerHand.length < 2) {
                     setPlayerHand((prevPlayerHand) => [
                         ...prevPlayerHand,
                         { rank, suit, cardValue },
                     ])
                 } else if (
                     hasBeenPlayed &&
-                    index == 2 &&
+                    index === 2 &&
                     playerHand.length < 2
                 ) {
                     setPlayerHand((prevPlayerHand) => [
@@ -110,7 +116,7 @@ export default function Home() {
                     ])
                 } else if (
                     hasBeenPlayed &&
-                    index == 1 &&
+                    index === 1 &&
                     dealerHand.length < 2
                 ) {
                     setDealerHand((prevDealerHand) => [
@@ -119,7 +125,7 @@ export default function Home() {
                     ])
                 } else if (
                     hasBeenPlayed &&
-                    index == 3 &&
+                    index === 3 &&
                     dealerHand.length < 2
                 ) {
                     setDealerHand((prevDealerHand) => [
@@ -288,17 +294,25 @@ export default function Home() {
             </Head>
             <main className={styles.main}>
                 <div className={styles.topContainer}>
-                    <DealCardsButton
-                        state={state}
-                        cardsAlreadyDealt={cardsAlreadyDealt}
-                        setCardsAlreadyDealt={setCardsAlreadyDealt}
-                        playerTurn={playerTurn}
-                        setPlayerTurn={setPlayerTurn}
-                        isLoading={isLoading}
-                        setIsLoading={setIsLoading}
-                        getRandomResultArray={getRandomResultArray}
-                        setCounter={setCounter}
-                    />
+                    <div className={styles.buttonContainer}>
+                        <StartGameButton
+                            gameStarted={gameStarted}
+                            setGameStarted={setGameStarted}
+                            state={state}
+                            setIsGameOver={setIsGameOver}
+                        />
+                        <DealCardsButton
+                            state={state}
+                            cardsAlreadyDealt={cardsAlreadyDealt}
+                            setCardsAlreadyDealt={setCardsAlreadyDealt}
+                            playerTurn={playerTurn}
+                            setPlayerTurn={setPlayerTurn}
+                            isLoading={isLoading}
+                            setIsLoading={setIsLoading}
+                            getRandomResultArray={getRandomResultArray}
+                            setCounter={setCounter}
+                        />
+                    </div>
 
                     {isConnected ? (
                         <div className={styles.ConnectButton}>
@@ -315,15 +329,6 @@ export default function Home() {
                         </button>
                     )}
                 </div>
-
-                {/* {!gameStarted && ( */}
-                <StartGameButton
-                    gameStarted={gameStarted}
-                    setGameStarted={setGameStarted}
-                    state={state}
-                    setIsGameOver={setIsGameOver}
-                />
-                {/* )} */}
 
                 <div className={styles.scoreContainer}>
                     <div>Dealer's Score: {dealerCardValue}</div>
