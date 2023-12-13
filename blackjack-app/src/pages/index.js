@@ -34,19 +34,21 @@ export default function Home() {
         contract: null,
     })
 
-    useEffect(
-        () => {
-            getPlayerCardValue()
-            getDealerCardValue()
-            getRandomResultArray()
-            getCounter()
-            console.log("playerhand:", playerHand, dealerHand, counter)
-        },
-        [state, isGameOver, playerCardValue, dealerCardValue],
+    useEffect(() => {
+        getPlayerCardValue()
+        getDealerCardValue()
+        getRandomResultArray()
+        getCounter()
+        console.log("playerhand:", playerHand, dealerHand, counter)
+    }, [
+        state,
+        isGameOver,
+        playerCardValue,
+        dealerCardValue,
         playerHand,
         dealerHand,
-        counter
-    )
+        counter,
+    ])
 
     const openGameOverModal = () => {
         setIsGameOver(true)
@@ -300,6 +302,8 @@ export default function Home() {
                             setGameStarted={setGameStarted}
                             state={state}
                             setIsGameOver={setIsGameOver}
+                            setIsLoading={setIsLoading}
+                            isLoading={isLoading}
                         />
                         <DealCardsButton
                             state={state}
@@ -342,9 +346,6 @@ export default function Home() {
                                     src={cardImages[card.rank][card.suit]}
                                     alt={`${card.rank} of ${card.suit}`}
                                 />
-                                {/* <p>Rank: {card.rank}</p>
-                            <p>Suit: {card.suit}</p>
-                            <p>Card Value: {card.cardValue}</p> */}
                             </div>
                         ))}
                     </div>
@@ -390,6 +391,8 @@ export default function Home() {
                         isLoading={isLoading}
                         getDealerCardValue={getDealerCardValue}
                         isGameOver={isGameOver}
+                        setDealerTurn={setDealerTurn}
+                        setPlayerTurn={setPlayerTurn}
                     />
                 </div>
 
@@ -420,6 +423,7 @@ export default function Home() {
                     setCardsAlreadyDealt={setCardsAlreadyDealt}
                     setCounter={setCounter}
                     counter={counter}
+                    setDealerTurn={setDealerTurn}
                 />
                 {/* ) : (
                     <div></div>

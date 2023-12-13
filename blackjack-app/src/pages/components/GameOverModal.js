@@ -15,10 +15,11 @@ function GameOverModal({
     counter,
     setPlayerHand,
     setDealerHand,
+    setDealerTurn,
 }) {
     useEffect(() => {
         gameOverResult()
-    }, [state, isGameOver])
+    }, [state, isGameOver, playerWins, dealerWins])
 
     const gameOverResult = async () => {
         try {
@@ -31,6 +32,7 @@ function GameOverModal({
                     const playerWinsSet = await setPlayerWins(true)
                     const playerHandReset = await setPlayerHand([])
                     const dealerHandReset = await setDealerHand([])
+                    const dealerTurnSet = await setDealerTurn(false)
                     const cardsAlreadyDealtReset = await setCardsAlreadyDealt(
                         false
                     )
@@ -43,6 +45,7 @@ function GameOverModal({
                     const dealerWinsSet = await setDealerWins(true)
                     const playerHandReset = await setPlayerHand([])
                     const dealerHandReset = await setDealerHand([])
+                    const dealerTurnSet = await setDealerTurn(false)
                     const cardsAlreadyDealtReset = await setCardsAlreadyDealt(
                         false
                     )
@@ -64,7 +67,7 @@ function GameOverModal({
                         <span className="close" onClick={closeGameOverModal}>
                             &times;
                         </span>
-                        <h3>GAME OVER </h3>
+                        <h3>GAME OVER</h3>
                         <p>Player Wins!</p>
                     </div>
                 </div>

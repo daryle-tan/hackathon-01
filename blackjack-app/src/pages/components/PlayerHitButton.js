@@ -50,7 +50,7 @@ export default function PlayerHitButton({
             } else {
                 console.log("Already added: ", nestedProxy)
             }
-            console.log(result[counter], isGameOver)
+            console.log(result[counter])
         }
         getPlayerCardValue()
     }

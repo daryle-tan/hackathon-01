@@ -8,6 +8,8 @@ export default function StandButton({
     isLoading,
     getDealerCardValue,
     isGameOver,
+    setPlayerTurn,
+    setDealerTurn,
 }) {
     async function StandHand() {
         try {
@@ -17,6 +19,8 @@ export default function StandButton({
             if (contract) {
                 const tx = await contract.standHand()
                 const dealerCardValue = await getDealerCardValue()
+                const playerTurnSet = await setPlayerTurn(false)
+                const dealerTurnSet = await setDealerTurn(true)
                 const loadingSet = await setIsLoading(false)
                 console.log(
                     "Transaction details:",
