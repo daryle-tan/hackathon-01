@@ -16,12 +16,17 @@ export default function StandButton({
 
             if (contract) {
                 const tx = await contract.standHand()
-                getDealerCardValue()
-                console.log("Transaction details:", tx, isGameOver)
+                const dealerCardValue = await getDealerCardValue()
+                const loadingSet = await setIsLoading(false)
+                console.log(
+                    "Transaction details:",
+                    tx,
+                    isGameOver,
+                    dealerCardValue
+                )
             } else {
                 console.error("Contract instance not found", contract)
             }
-            setIsLoading(false)
         } catch (error) {
             setIsLoading(false)
             console.error("Error calling dealCards function:", error)

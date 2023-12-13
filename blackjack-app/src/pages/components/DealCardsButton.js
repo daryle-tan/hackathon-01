@@ -22,9 +22,11 @@ export default function DealCardsButton({
                 // Trigger the startGame function
                 const tx = await contract.dealCards()
                 console.log(contract)
-                setCardsAlreadyDealt(true)
-                setPlayerTurn(true)
-                setCounter(3)
+                const cardsDealt = await setCardsAlreadyDealt(true)
+                const playerSetTurn = await setPlayerTurn(true)
+                const counterSet = await setCounter(3)
+                const showRandomResult = await getRandomResultArray()
+                const loadingSet = await setIsLoading(false)
                 console.log(
                     "Transaction details:",
                     tx,
@@ -36,8 +38,6 @@ export default function DealCardsButton({
             } else {
                 console.error("Contract instance not found", contract)
             }
-            getRandomResultArray()
-            setIsLoading(false)
         } catch (error) {
             setIsLoading(false)
             console.error("Error calling dealCards function:", error)

@@ -20,13 +20,13 @@ export default function PlayerHitButton({
 
             if (contract) {
                 const tx = await contract.playerHitCard()
-                const randomGet = await getRandomResult()
                 const counterSet = await setCounter(counter + 1)
-                console.log("Transaction details:", tx)
+                const randomGet = await getRandomResult()
+                const loadingSet = await setIsLoading(false)
+                console.log("Transaction details:", tx, randomGet, counterSet)
             } else {
                 console.error("Contract instance not found", contract)
             }
-            setIsLoading(false)
         } catch (error) {
             setIsLoading(false)
             console.error("Error calling dealCards function:", error)
@@ -42,15 +42,10 @@ export default function PlayerHitButton({
             const suit = Number(nestedProxy[1])
             const cardValue = Number(nestedProxy[2])
             const hasBeenPlayed = nestedProxy[3]
-            if (
-                !hasBeenPlayed &&
-                counter >= 3 &&
-                result[counter + 1] === playerHand.length
-            ) {
+            if (hasBeenPlayed && counter >= 3 && result[counter]) {
                 setPlayerHand((prevPlayerHand) => [
                     ...prevPlayerHand,
                     { rank, suit, cardValue },
-                    setCounter(counter + 1),
                 ])
             } else {
                 console.log("Already added: ", nestedProxy)

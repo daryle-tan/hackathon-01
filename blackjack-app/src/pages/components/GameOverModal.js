@@ -18,7 +18,7 @@ function GameOverModal({
 }) {
     useEffect(() => {
         gameOverResult()
-    }, [state])
+    }, [state, isGameOver])
 
     const gameOverResult = async () => {
         try {
