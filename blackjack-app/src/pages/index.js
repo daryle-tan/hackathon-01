@@ -87,15 +87,11 @@ export default function Home() {
     }
 
     const getRandomResultArray = async () => {
-        // try {
         const { contract } = state
-        // Check if contract instance exists
         if (contract) {
-            // Call a function to get the full array-like structure
             const result = await contract.getRandomResult()
-            // console.log(result[0])
+
             result.map((card, index) => {
-                // Access card properties directly
                 let nestedProxy = card
                 const rank = Number(nestedProxy[0])
                 const suit = Number(nestedProxy[1])
@@ -148,12 +144,6 @@ export default function Home() {
             if (contract) {
                 const tx = await contract.getPlayerValue()
                 setPlayerCardValue(Number(tx))
-                console.log(
-                    "player value:",
-                    tx,
-                    "set player value:",
-                    playerCardValue
-                )
             } else {
                 console.error("Contract instance not found", contract)
             }
@@ -169,12 +159,6 @@ export default function Home() {
             if (contract) {
                 const tx = await contract.getDealerValue()
                 setDealerCardValue(Number(tx))
-                console.log(
-                    "dealer value:",
-                    tx,
-                    "set dealer value:",
-                    dealerCardValue
-                )
             } else {
                 console.error("Contract instance not found", contract)
             }
@@ -304,6 +288,8 @@ export default function Home() {
                             setIsGameOver={setIsGameOver}
                             setIsLoading={setIsLoading}
                             isLoading={isLoading}
+                            setPlayerHand={setPlayerHand}
+                            setDealerHand={setDealerHand}
                         />
                         <DealCardsButton
                             state={state}

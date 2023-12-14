@@ -28,28 +28,24 @@ function GameOverModal({
             if (contract) {
                 const tx = await contract.getPlayerWins()
                 if (tx) {
-                    const gameOver = await setIsGameOver(true)
-                    const playerWinsSet = await setPlayerWins(true)
-                    const playerHandReset = await setPlayerHand([])
-                    const dealerHandReset = await setDealerHand([])
-                    const dealerTurnSet = await setDealerTurn(false)
-                    const cardsAlreadyDealtReset = await setCardsAlreadyDealt(
-                        false
-                    )
-                    const counterReset = await setCounter(0)
+                    setIsGameOver(true)
+                    setPlayerWins(true)
+                    setPlayerHand([])
+                    setDealerHand([])
+                    setDealerTurn(false)
+                    setCardsAlreadyDealt(false)
+                    setCounter(0)
                     console.log("Transaction details tx:", tx)
                 }
                 const result = await contract.getDealerWins()
                 if (result) {
-                    const gameOverD = await setIsGameOver(true)
-                    const dealerWinsSet = await setDealerWins(true)
-                    const playerHandReset = await setPlayerHand([])
-                    const dealerHandReset = await setDealerHand([])
-                    const dealerTurnSet = await setDealerTurn(false)
-                    const cardsAlreadyDealtReset = await setCardsAlreadyDealt(
-                        false
-                    )
-                    const counterReset = await setCounter(0)
+                    setIsGameOver(true)
+                    setDealerWins(true)
+                    setPlayerHand([])
+                    setDealerHand([])
+                    setDealerTurn(false)
+                    setCardsAlreadyDealt(false)
+                    setCounter(0)
                     console.log("Transaction details result:", result)
                 }
             } else {

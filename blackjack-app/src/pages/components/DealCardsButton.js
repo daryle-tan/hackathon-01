@@ -17,16 +17,15 @@ export default function DealCardsButton({
         try {
             setIsLoading(true)
             const { contract } = state
-            // Check if contract instance exists
+
             if (contract) {
-                // Trigger the startGame function
                 const tx = await contract.dealCards()
                 console.log(contract)
-                const cardsDealt = await setCardsAlreadyDealt(true)
-                const playerSetTurn = await setPlayerTurn(true)
-                const counterSet = await setCounter(3)
-                const showRandomResult = await getRandomResultArray()
-                const loadingSet = await setIsLoading(false)
+                setCardsAlreadyDealt(true)
+                setPlayerTurn(true)
+                setCounter(3)
+                getRandomResultArray()
+                setIsLoading(false)
                 console.log(
                     "Transaction details:",
                     tx,
