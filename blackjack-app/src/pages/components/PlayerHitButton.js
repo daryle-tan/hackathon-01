@@ -54,7 +54,7 @@ export default function PlayerHitButton({
             const cardValue = Number(nestedProxy[2])
             const hasBeenPlayed = nestedProxy[3]
 
-            if (!hasBeenPlayed && counter >= 3 && result[counter]) {
+            if (hasBeenPlayed && counter >= 3 && result[counter]) {
                 setPlayerHand((prevPlayerHand) => {
                     const isCardAlreadyAdded = prevPlayerHand.some(
                         (card) =>

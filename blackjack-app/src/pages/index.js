@@ -37,13 +37,13 @@ export default function Home() {
     useEffect(() => {
         getPlayerCardValue()
         getDealerCardValue()
-        // getRandomResultArray()
         getCounter()
         console.log(
             "dealerhand:",
             dealerHand,
             "playerhand:",
             playerHand,
+            "counter:",
             counter
         )
     }, [
@@ -180,7 +180,7 @@ export default function Home() {
             if (contract) {
                 const tx = await contract.getCounter()
                 setCounter(Number(tx))
-                console.log("dealer value:", Number(tx))
+                console.log("counter:", Number(tx))
             } else {
                 console.error("Contract instance not found", contract)
             }
