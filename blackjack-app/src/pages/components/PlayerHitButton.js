@@ -1,4 +1,4 @@
-import React from "react"
+import { useState, useEffect } from "react"
 import styles from "../../styles/PlayerHitButton.module.css"
 import LoadingModal from "./LoadingModal"
 
@@ -13,6 +13,16 @@ export default function PlayerHitButton({
     counter,
     isGameOver,
 }) {
+    const [playerHasHit, setPlayerHasHit] = useState(false)
+
+    useEffect(() => {
+        if (playerHasHit) {
+            getRandomResult()
+            // Reset the tracker
+            setPlayerHasHit(false)
+        }
+    }, [playerHasHit])
+
     const playerHit = async () => {
         try {
             setIsLoading(true)
@@ -21,8 +31,9 @@ export default function PlayerHitButton({
             if (contract) {
                 const tx = await contract.playerHitCard()
                 setCounter(counter + 1)
-                getRandomResult()
+
                 setIsLoading(false)
+                setPlayerHasHit(true)
                 console.log("Transaction details:", tx, randomGet, counterSet)
             } else {
                 console.error("Contract instance not found", contract)

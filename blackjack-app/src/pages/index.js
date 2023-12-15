@@ -37,9 +37,15 @@ export default function Home() {
     useEffect(() => {
         getPlayerCardValue()
         getDealerCardValue()
-        getRandomResultArray()
+        // getRandomResultArray()
         getCounter()
-        console.log("playerhand:", playerHand, dealerHand, counter)
+        console.log(
+            "dealerhand:",
+            dealerHand,
+            "playerhand:",
+            playerHand,
+            counter
+        )
     }, [
         state,
         isGameOver,
@@ -323,39 +329,41 @@ export default function Home() {
                 <div className={styles.scoreContainer}>
                     <div>Dealer's Score: {dealerCardValue}</div>
                 </div>
-                {cardsAlreadyDealt ? (
-                    <div className={styles.dealersHandDiv}>
-                        {dealerHand.map((card, index) => (
-                            <div key={index}>
-                                <img
-                                    className={styles.cardImage}
-                                    src={cardImages[card.rank][card.suit]}
-                                    alt={`${card.rank} of ${card.suit}`}
-                                />
-                            </div>
-                        ))}
-                    </div>
-                ) : (
+                {/* {cardsAlreadyDealt ? ( */}
+                <div className={styles.dealersHandDiv}>
+                    {dealerHand.map((card, index) => (
+                        <div key={index}>
+                            <img
+                                className={styles.cardImage}
+                                src={cardImages[card.rank][card.suit]}
+                                alt={`${card.rank} of ${card.suit}`}
+                            />
+                        </div>
+                    ))}
+                </div>
+                {/* ) : (
                     <div></div>
-                )}
+                )} */}
                 <div className={styles.scoreContainer}>
                     <div>Player's Score: {playerCardValue}</div>
                 </div>
-                {cardsAlreadyDealt ? (
-                    <div className={styles.playersHandDiv}>
-                        {playerHand.map((card, index) => (
-                            <div key={index}>
-                                <img
-                                    className={styles.cardImage}
-                                    src={cardImages[card.rank][card.suit]}
-                                    alt={`${card.rank} of ${card.suit}`}
-                                />
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div></div>
-                )}
+                {/* {cardsAlreadyDealt ? ( */}
+                <div className={styles.playersHandDiv}>
+                    {playerHand.map((card, index) => (
+                        <div key={index}>
+                            <img
+                                className={styles.cardImage}
+                                src={cardImages[card.rank][card.suit]}
+                                alt={`${card.rank} of ${card.suit}`}
+                            />
+                        </div>
+                    ))}
+                </div>
+                {
+                    /* ) : (
+                //     <div></div> */
+                    // )
+                }
 
                 <div className={styles.buttonContainer}>
                     <PlayerHitButton
@@ -392,6 +400,8 @@ export default function Home() {
                     setPlayerWins={setPlayerWins}
                     setDealerWins={setDealerWins}
                     setGameStarted={setGameStarted}
+                    dealerHand={dealerHand}
+                    playerHand={playerHand}
                 />
                 {/* {isGameOver ? ( */}
                 <GameOverModal
