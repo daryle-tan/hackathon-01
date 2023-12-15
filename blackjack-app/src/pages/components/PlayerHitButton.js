@@ -16,11 +16,11 @@ export default function PlayerHitButton({
     const [playerHasHit, setPlayerHasHit] = useState(false)
 
     useEffect(() => {
-        if (playerHasHit) {
-            getRandomResult()
-            // Reset the tracker
-            setPlayerHasHit(false)
-        }
+        // if (playerHasHit) {
+        getRandomResult()
+        // Reset the tracker
+        setPlayerHasHit(false)
+        // }
     }, [playerHasHit])
 
     const playerHit = async () => {
@@ -34,13 +34,14 @@ export default function PlayerHitButton({
 
                 setIsLoading(false)
                 setPlayerHasHit(true)
-                console.log("Transaction details:", tx, randomGet, counterSet)
+                console.log("Transaction details:", tx)
             } else {
+                setIsLoading(false)
                 console.error("Contract instance not found", contract)
             }
         } catch (error) {
             setIsLoading(false)
-            console.error("Error calling dealCards function:", error)
+            console.error("Error calling playerHit function:", error)
         }
     }
 
