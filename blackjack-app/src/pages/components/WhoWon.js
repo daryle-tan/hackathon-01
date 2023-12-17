@@ -1,14 +1,6 @@
 import { useEffect } from "react"
 
-export default function WhoWon({
-    state,
-    setIsGameOver,
-    setPlayerWins,
-    setDealerWins,
-    setGameStarted,
-    dealerHand,
-    playerHand,
-}) {
+export default function WhoWon({ state, dealerHand, playerHand }) {
     useEffect(() => {
         getDealerWins()
         getPlayerWins()
