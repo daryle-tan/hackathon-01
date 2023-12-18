@@ -296,6 +296,7 @@ export default function Home() {
                             isLoading={isLoading}
                             setPlayerHand={setPlayerHand}
                             setDealerHand={setDealerHand}
+                            setCardsAlreadyDealt={setCardsAlreadyDealt}
                         />
                         <DealCardsButton
                             state={state}

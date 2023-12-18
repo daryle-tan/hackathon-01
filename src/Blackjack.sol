@@ -17,9 +17,9 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
     error Blackjack__DealerTurn();
     error Blackjack__StillPlayerTurn(bool);
     error Blackjack__NotDealerTurn(bool);
-    error Blackjack__CardHasAlreadyBeenPlayed();
     error Blackjack__NoMoreNumbersCanBeAdded();
     error Black__GameHasAlreadyStarted();
+    // error Blackjack__CardHasAlreadyBeenPlayed();
 
     VRFCoordinatorV2Interface immutable COORDINATOR;
     LinkTokenInterface immutable LINKTOKEN;
@@ -227,9 +227,9 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         if (counter > s_randomResult.length) {
             revert Blackjack__IndexOutOfRange("Index out of bounds");
         }
-        if (s_randomResult[counter].hasBeenPlayed) {
-            revert Blackjack__CardHasAlreadyBeenPlayed();
-        }
+        // if (s_randomResult[counter].hasBeenPlayed) {
+        //     revert Blackjack__CardHasAlreadyBeenPlayed();
+        // }
 
         s_randomResult[counter].hasBeenPlayed = true;
         s_playerValue += s_randomResult[counter].cardValue;
