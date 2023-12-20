@@ -19,7 +19,7 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
     error Blackjack__NotDealerTurn(bool);
     error Blackjack__NoMoreNumbersCanBeAdded();
     error Black__GameHasAlreadyStarted();
-    // error Blackjack__CardHasAlreadyBeenPlayed();
+    error Blackjack__CardHasAlreadyBeenPlayed();
 
     VRFCoordinatorV2Interface immutable COORDINATOR;
     LinkTokenInterface immutable LINKTOKEN;
