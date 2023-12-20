@@ -13,6 +13,8 @@ function StartGameButton({
     setCounter,
     setIsLoading,
     isLoading,
+    setPlayerWins,
+    setDealerWins,
 }) {
     const [gameStartedTx, setGameStartedTx] = useState(false)
 
@@ -51,8 +53,10 @@ function StartGameButton({
             setCardsAlreadyDealt(false)
             setCounter(0)
             setGameStarted(true)
+            setPlayerWins(false)
+            setDealerWins(false)
         }
-    }, [gameStartedTx])
+    }, [state])
     return (
         <>
             {isLoading ? (

@@ -16,12 +16,12 @@ export default function PlayerHitButton({
     const [playerHasHit, setPlayerHasHit] = useState(false)
 
     useEffect(() => {
-        // if (playerHasHit) {
-        getRandomResult()
-        // Reset the tracker
-        setPlayerHasHit(false)
-        // }
-    }, [playerHasHit])
+        if (playerHasHit) {
+            getRandomResult()
+            // Reset the tracker
+            setPlayerHasHit(false)
+        }
+    }, [state])
 
     const playerHit = async () => {
         try {
@@ -47,58 +47,61 @@ export default function PlayerHitButton({
 
     const getRandomResult = async () => {
         const { contract } = state
-        if (contract) {
-            const result = await contract.getRandomResult()
-            if (result.length > 3) {
-                let nestedProxy = result[counter]
-                const rank = Number(nestedProxy[0])
-                const suit = Number(nestedProxy[1])
-                const cardValue = Number(nestedProxy[2])
-                const hasBeenPlayed = nestedProxy[3]
+        try {
+            if (contract) {
+                const result = await contract.getRandomResult()
+                if (result.length > 3) {
+                    let nestedProxy = result[counter]
+                    const rank = Number(nestedProxy[0])
+                    const suit = Number(nestedProxy[1])
+                    const cardValue = Number(nestedProxy[2])
+                    const hasBeenPlayed = nestedProxy[3]
 
-                if (hasBeenPlayed && counter >= 3 && result[counter]) {
-                    setPlayerHand((prevPlayerHand) => {
-                        const isCardAlreadyAdded = prevPlayerHand.some(
-                            (card) =>
-                                card.rank === rank &&
-                                card.suit === suit &&
-                                card.cardValue === cardValue
+                    if (hasBeenPlayed && counter > 3 && result[counter]) {
+                        setPlayerHand((prevPlayerHand) => {
+                            const isCardAlreadyAdded = prevPlayerHand.some(
+                                (card) =>
+                                    card.rank === rank &&
+                                    card.suit === suit &&
+                                    card.cardValue === cardValue
+                            )
+
+                            if (!isCardAlreadyAdded) {
+                                return [
+                                    ...prevPlayerHand,
+                                    { rank, suit, cardValue },
+                                ]
+                            } else {
+                                console.log("Already added: ", nestedProxy)
+                                return prevPlayerHand
+                            }
+                        })
+                    } else {
+                        console.log(
+                            "Already added or other conditions not met: ",
+                            nestedProxy
                         )
-
-                        if (!isCardAlreadyAdded) {
-                            return [
-                                ...prevPlayerHand,
-                                { rank, suit, cardValue },
-                            ]
-                        } else {
-                            console.log("Already added: ", nestedProxy)
-                            return prevPlayerHand
-                        }
-                    })
+                    }
+                    console.log(result[counter])
                 } else {
-                    console.log(
-                        "Already added or other conditions not met: ",
-                        nestedProxy
-                    )
+                    console.error()
                 }
-
-                console.log(result[counter])
-            } else {
-                console.error()
             }
+            getPlayerCardValue()
+        } catch (error) {
+            console.error("Contract instance not found", contract)
         }
-        getPlayerCardValue()
     }
 
     return (
         <>
-            {isLoading ? (
+            {/* {isLoading ? (
                 <LoadingModal />
-            ) : (
-                <button className={styles.PlayerHitButton} onClick={playerHit}>
-                    Player Hit
-                </button>
-            )}
+            ) : ( */}
+            <button className={styles.PlayerHitButton} onClick={playerHit}>
+                Player Hit
+            </button>
+            {/* )} */}
             <button onClick={getRandomResult}>getRandomResult</button>
         </>
     )

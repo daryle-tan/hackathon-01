@@ -44,13 +44,13 @@ export default function DealCardsButton({
     }
     return (
         <>
-            {isLoading ? (
+            {/* {isLoading ? (
                 <LoadingModal />
-            ) : (
-                <button className={styles.DealCardsButton} onClick={dealCards}>
-                    Deal Cards
-                </button>
-            )}
+            ) : ( */}
+            <button className={styles.DealCardsButton} onClick={dealCards}>
+                Deal Cards
+            </button>
+            {/* )} */}
         </>
     )
 }

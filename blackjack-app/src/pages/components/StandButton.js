@@ -10,6 +10,7 @@ export default function StandButton({
     isGameOver,
     setPlayerTurn,
     setDealerTurn,
+    dealerCardValue,
 }) {
     async function StandHand() {
         try {
@@ -38,13 +39,13 @@ export default function StandButton({
     }
     return (
         <>
-            {isLoading ? (
+            {/* {isLoading ? (
                 <LoadingModal />
-            ) : (
-                <button className={styles.StandButton} onClick={StandHand}>
-                    Stand
-                </button>
-            )}
+            ) : ( */}
+            <button className={styles.StandButton} onClick={StandHand}>
+                Stand
+            </button>
+            {/* )} */}
         </>
     )
 }

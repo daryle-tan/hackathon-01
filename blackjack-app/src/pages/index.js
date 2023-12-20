@@ -65,7 +65,7 @@ export default function Home() {
     }
 
     const template = async () => {
-        const contractAddress = "0x5A1920C96Fb506BFa3968CcE445D8392fE5a9DB6"
+        const contractAddress = "0x439a4BbeC79DDcc07bF20409c67C3bDbcc3cF902"
         const contractABI = abi.abi
 
         try {
@@ -73,7 +73,7 @@ export default function Home() {
                 method: "eth_requestAccounts",
             })
 
-            setAccount(addresses[0])
+            setAccount(addresses)
             const provider = new ethers.BrowserProvider(window.ethereum)
             const signer = await provider.getSigner()
 
@@ -94,52 +94,66 @@ export default function Home() {
 
     const getRandomResultArray = async () => {
         const { contract } = state
-        if (contract) {
-            const result = await contract.getRandomResult()
+        try {
+            if (contract) {
+                const result = await contract.getRandomResult()
 
-            result.map((card, index) => {
-                let nestedProxy = card
-                const rank = Number(nestedProxy[0])
-                const suit = Number(nestedProxy[1])
-                const cardValue = Number(nestedProxy[2])
-                const hasBeenPlayed = nestedProxy[3]
+                result.map((card, index) => {
+                    let nestedProxy = card
+                    const rank = Number(nestedProxy[0])
+                    const suit = Number(nestedProxy[1])
+                    const cardValue = Number(nestedProxy[2])
+                    const hasBeenPlayed = nestedProxy[3]
 
-                if (hasBeenPlayed && index === 0 && playerHand.length < 2) {
-                    setPlayerHand((prevPlayerHand) => [
-                        ...prevPlayerHand,
-                        { rank, suit, cardValue },
-                    ])
-                } else if (
-                    hasBeenPlayed &&
-                    index === 2 &&
-                    playerHand.length < 2
-                ) {
-                    setPlayerHand((prevPlayerHand) => [
-                        ...prevPlayerHand,
-                        { rank, suit, cardValue },
-                    ])
-                } else if (
-                    hasBeenPlayed &&
-                    index === 1 &&
-                    dealerHand.length < 2
-                ) {
-                    setDealerHand((prevDealerHand) => [
-                        ...prevDealerHand,
-                        { rank, suit, cardValue },
-                    ])
-                } else if (
-                    hasBeenPlayed &&
-                    index === 3 &&
-                    dealerHand.length < 2
-                ) {
-                    setDealerHand((prevDealerHand) => [
-                        ...prevDealerHand,
-                        { rank, suit, cardValue },
-                    ])
-                }
-            })
-            getPlayerCardValue()
-            getDealerCardValue()
+                    if (hasBeenPlayed && index === 0 && playerHand.length < 2) {
+                        setPlayerHand((prevPlayerHand) => [
+                            ...prevPlayerHand,
+                            { rank, suit, cardValue },
+                        ])
+                    } else if (
+                        hasBeenPlayed &&
+                        index === 2 &&
+                        playerHand.length < 2
+                    ) {
+                        setPlayerHand((prevPlayerHand) => [
+                            ...prevPlayerHand,
+                            { rank, suit, cardValue },
+                        ])
+                    } else if (
+                        hasBeenPlayed &&
+                        index === 1 &&
+                        dealerHand.length < 2
+                    ) {
+                        setDealerHand((prevDealerHand) => [
+                            ...prevDealerHand,
+                            { rank, suit, cardValue },
+                        ])
+                    } else if (
+                        hasBeenPlayed &&
+                        index === 3 &&
+                        dealerHand.length < 2
+                    ) {
+                        setDealerHand((prevDealerHand) => [
+                            ...prevDealerHand,
+                            { rank, suit, cardValue },
+                        ])
+                    } else if (
+                        hasBeenPlayed &&
+                        counter > 3 &&
+                        playerHand.length >= 2 &&
+                        result[counter]
+                    ) {
+                        setPlayerHand((prevPlayerHand) => [
+                            ...prevPlayerHand,
+                            { rank, suit, cardValue },
+                        ])
+                    }
+                })
+                getPlayerCardValue()
+                getDealerCardValue()
+            }
+        } catch (error) {
+            console.error("Error retrieving data:", error)
         }
     }
 
@@ -297,6 +311,9 @@ export default function Home() {
                             setPlayerHand={setPlayerHand}
                             setDealerHand={setDealerHand}
                             setCardsAlreadyDealt={setCardsAlreadyDealt}
+                            setCounter={setCounter}
+                            setDealerWins={setDealerWins}
+                            setPlayerWins={setPlayerWins}
                         />
                         <DealCardsButton
                             state={state}
@@ -384,6 +401,7 @@ export default function Home() {
                         state={state}
                         setIsLoading={setIsLoading}
                         isLoading={isLoading}
+                        dealerCardValue={dealerCardValue}
                         getDealerCardValue={getDealerCardValue}
                         isGameOver={isGameOver}
                         setDealerTurn={setDealerTurn}
@@ -403,6 +421,7 @@ export default function Home() {
                     setGameStarted={setGameStarted}
                     dealerHand={dealerHand}
                     playerHand={playerHand}
+                    counter={counter}
                 />
                 {/* {isGameOver ? ( */}
                 <GameOverModal
