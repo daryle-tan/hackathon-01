@@ -1,4 +1,4 @@
-import React from "react"
+import { useEffect } from "react"
 import styles from "../../styles/DealCardsButton.module.css"
 import LoadingModal from "./LoadingModal"
 
@@ -13,6 +13,15 @@ export default function DealCardsButton({
     getRandomResultArray,
     setCounter,
 }) {
+    useEffect(() => {
+        // if (!isLoading) {
+        setCardsAlreadyDealt(true)
+        setPlayerTurn(true)
+        setCounter(3)
+        getRandomResultArray()
+        // }
+    }, [state])
+
     const dealCards = async () => {
         try {
             setIsLoading(true)
@@ -21,10 +30,6 @@ export default function DealCardsButton({
             if (contract) {
                 const tx = await contract.dealCards()
                 console.log(contract)
-                setCardsAlreadyDealt(true)
-                setPlayerTurn(true)
-                setCounter(3)
-                getRandomResultArray()
                 setIsLoading(false)
                 console.log(
                     "Transaction details:",

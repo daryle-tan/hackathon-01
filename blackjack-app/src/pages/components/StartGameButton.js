@@ -16,8 +16,6 @@ function StartGameButton({
     setPlayerWins,
     setDealerWins,
 }) {
-    const [gameStartedTx, setGameStartedTx] = useState(false)
-
     const startGame = async () => {
         try {
             setIsLoading(true)
@@ -34,7 +32,7 @@ function StartGameButton({
                     "Game has started:",
                     gameStarted
                 )
-                setGameStartedTx(true)
+                setGameStarted(true)
             } else {
                 setIsLoading(false)
                 console.error("Contract instance not found")
@@ -46,7 +44,7 @@ function StartGameButton({
     }
 
     useEffect(() => {
-        if (gameStartedTx) {
+        if (gameStarted) {
             setIsGameOver(false)
             setPlayerHand([])
             setDealerHand([])
@@ -56,7 +54,7 @@ function StartGameButton({
             setPlayerWins(false)
             setDealerWins(false)
         }
-    }, [state])
+    }, [gameStarted])
     return (
         <>
             {isLoading ? (

@@ -12,16 +12,16 @@ export default function PlayerHitButton({
     setCounter,
     counter,
     isGameOver,
+    playerHasHit,
+    setPlayerHasHit,
 }) {
-    const [playerHasHit, setPlayerHasHit] = useState(false)
-
-    useEffect(() => {
-        if (playerHasHit) {
-            getRandomResult()
-            // Reset the tracker
-            setPlayerHasHit(false)
-        }
-    }, [state])
+    // useEffect(() => {
+    //     if (playerHasHit) {
+    //         getRandomResult()
+    //         // Reset the tracker
+    //         setPlayerHasHit(false)
+    //     }
+    // }, [playerHasHit])
 
     const playerHit = async () => {
         try {
@@ -33,7 +33,8 @@ export default function PlayerHitButton({
                 setCounter(counter + 1)
 
                 setIsLoading(false)
-                setPlayerHasHit(true)
+                // setPlayerHasHit(true)
+                // getRandomResult()
                 console.log("Transaction details:", tx)
             } else {
                 setIsLoading(false)

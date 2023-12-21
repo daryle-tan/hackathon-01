@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 import styles from "../../styles/StandButton.module.css"
 import LoadingModal from "./LoadingModal"
 
@@ -12,6 +12,13 @@ export default function StandButton({
     setDealerTurn,
     dealerCardValue,
 }) {
+    useEffect(() => {
+        if (!isLoading) {
+            setPlayerTurn(false)
+            setDealerTurn(true)
+        }
+    }, [isLoading])
+
     async function StandHand() {
         try {
             setIsLoading(true)
@@ -19,9 +26,7 @@ export default function StandButton({
 
             if (contract) {
                 const tx = await contract.standHand()
-                getDealerCardValue()
-                setPlayerTurn(false)
-                setDealerTurn(true)
+
                 setIsLoading(false)
                 console.log(
                     "Transaction details:",

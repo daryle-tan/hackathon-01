@@ -227,9 +227,6 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         if (counter > s_randomResult.length) {
             revert Blackjack__IndexOutOfRange("Index out of bounds");
         }
-        // if (s_randomResult[counter].hasBeenPlayed) {
-        //     revert Blackjack__CardHasAlreadyBeenPlayed();
-        // }
 
         s_randomResult[counter].hasBeenPlayed = true;
         s_playerValue += s_randomResult[counter].cardValue;
@@ -316,6 +313,10 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
     ) external override {
         if (s_dealerValue < s_playerValue && s_dealerValue < 21) {
             dealerHitCard();
+        } else if (s_dealerValue > s_playerValue && s_dealerValue <= 21) {
+            dealerWins = true;
+            emit Blackjack__DealerWins();
+            gameOver();
         }
     }
 

@@ -28,6 +28,7 @@ export default function Home() {
     const [isLoading, setIsLoading] = useState(false)
     const [isGameOver, setIsGameOver] = useState(false)
     const [counter, setCounter] = useState(0)
+    const [playerHasHit, setPlayerHasHit] = useState(false)
     const [state, setState] = useState({
         provider: null,
         signer: null,
@@ -47,7 +48,7 @@ export default function Home() {
             counter
         )
     }, [
-        state,
+        // state,
         isGameOver,
         playerCardValue,
         dealerCardValue,
@@ -65,7 +66,7 @@ export default function Home() {
     }
 
     const template = async () => {
-        const contractAddress = "0x439a4BbeC79DDcc07bF20409c67C3bDbcc3cF902"
+        const contractAddress = "0x2441B17Ea962307C4622bccd288E3C9cda01C729"
         const contractABI = abi.abi
 
         try {
@@ -395,6 +396,8 @@ export default function Home() {
                         setCounter={setCounter}
                         getPlayerCardValue={getPlayerCardValue}
                         isGameOver={isGameOver}
+                        playerHasHit={playerHasHit}
+                        setPlayerHasHit={setPlayerHasHit}
                     />
 
                     <StandButton
