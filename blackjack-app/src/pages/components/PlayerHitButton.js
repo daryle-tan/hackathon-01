@@ -15,17 +15,17 @@ export default function PlayerHitButton({
     playerHasHit,
     setPlayerHasHit,
 }) {
-    // useEffect(() => {
-    //     if (playerHasHit) {
-    //         getRandomResult()
-    //         // Reset the tracker
-    //         setPlayerHasHit(false)
-    //     }
-    // }, [playerHasHit])
+    useEffect(() => {
+        if (playerHasHit) {
+            getRandomResult()
+            // Reset the tracker
+            setPlayerHasHit(false)
+        }
+    }, [playerHasHit])
 
     const playerHit = async () => {
+        setIsLoading(true)
         try {
-            setIsLoading(true)
             const { contract } = state
 
             if (contract) {

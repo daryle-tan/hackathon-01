@@ -17,14 +17,15 @@ function StartGameButton({
     setDealerWins,
 }) {
     const startGame = async () => {
+        setIsLoading(true)
         try {
-            setIsLoading(true)
-            const { contract } = state
+            // const { contract } = state
             // Check if contract instance exists
-            if (contract) {
+            if (state) {
                 // Trigger the startGame function
-                const tx = await contract.startGame()
+                const tx = await state.startGame()
 
+                setGameStarted(true)
                 setIsLoading(false)
                 console.log(
                     "Transaction details:",
@@ -32,7 +33,6 @@ function StartGameButton({
                     "Game has started:",
                     gameStarted
                 )
-                setGameStarted(true)
             } else {
                 setIsLoading(false)
                 console.error("Contract instance not found")

@@ -14,17 +14,17 @@ export default function DealCardsButton({
     setCounter,
 }) {
     useEffect(() => {
-        // if (!isLoading) {
-        setCardsAlreadyDealt(true)
-        setPlayerTurn(true)
-        setCounter(3)
-        getRandomResultArray()
-        // }
-    }, [state])
+        if (!isLoading) {
+            setCardsAlreadyDealt(true)
+            setPlayerTurn(true)
+            setCounter(3)
+            getRandomResultArray()
+        }
+    }, [isLoading])
 
     const dealCards = async () => {
+        setIsLoading(true)
         try {
-            setIsLoading(true)
             const { contract } = state
 
             if (contract) {

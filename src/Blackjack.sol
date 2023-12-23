@@ -231,10 +231,12 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         s_randomResult[counter].hasBeenPlayed = true;
         s_playerValue += s_randomResult[counter].cardValue;
         if (s_playerValue > 21) {
-            dealerWins = true;
             playerTurn = false;
-            gameOver();
-            emit Blackjack__DealerWins();
+            dealerTurn = true;
+
+            // dealerWins = true;
+            // gameOver();
+            // emit Blackjack__DealerWins();
         }
 
         emit Blackjack__PlayerHit(
@@ -269,6 +271,11 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         }
         if (!dealerTurn) {
             revert Blackjack__NotDealerTurn(dealerTurn);
+        }
+        if (s_playerValue > 21) {
+            dealerWins = true;
+            gameOver();
+            emit Blackjack__DealerWins();
         }
         counter++;
         if (s_randomResult[counter].hasBeenPlayed) {
@@ -373,6 +380,10 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
 
     function getDealerWins() public view returns (bool) {
         return dealerWins;
+    }
+
+    function getNoWinner() public view returns (bool) {
+        return noWinner;
     }
 
     function getDeck() external view returns (Card[] memory) {
