@@ -45,7 +45,9 @@ export default function Home() {
             "playerhand:",
             playerHand,
             "counter:",
-            counter
+            counter,
+            "No Winner:",
+            noWinner
         )
     }, [
         // state,
@@ -66,7 +68,7 @@ export default function Home() {
     }
 
     const template = async () => {
-        const contractAddress = "0x2441B17Ea962307C4622bccd288E3C9cda01C729"
+        const contractAddress = "0x54b626465dc450e32B5622cB6fD162bB70122F7b"
         const contractABI = abi.abi
 
         try {
@@ -315,6 +317,7 @@ export default function Home() {
                             setCounter={setCounter}
                             setDealerWins={setDealerWins}
                             setPlayerWins={setPlayerWins}
+                            setNoWinner={setNoWinner}
                         />
                         <DealCardsButton
                             state={state}
@@ -421,6 +424,7 @@ export default function Home() {
                     setIsGameOver={setIsGameOver}
                     setPlayerWins={setPlayerWins}
                     setDealerWins={setDealerWins}
+                    setNoWinner={setNoWinner}
                     setGameStarted={setGameStarted}
                     dealerHand={dealerHand}
                     playerHand={playerHand}
@@ -443,6 +447,8 @@ export default function Home() {
                     setCounter={setCounter}
                     counter={counter}
                     setDealerTurn={setDealerTurn}
+                    noWinner={noWinner}
+                    setNoWinner={setNoWinner}
                 />
                 {/* ) : (
                     <div></div>

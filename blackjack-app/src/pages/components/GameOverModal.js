@@ -16,18 +16,20 @@ function GameOverModal({
     setPlayerHand,
     setDealerHand,
     setDealerTurn,
+    noWinner,
+    setNoWinner,
 }) {
     useEffect(() => {
         gameOverResult()
-    }, [state, isGameOver, playerWins, dealerWins])
+    }, [state /*noWinner, isGameOver, playerWins, dealerWins */])
 
     const gameOverResult = async () => {
         try {
             const { contract } = state
 
             if (contract) {
-                const tx = await contract.getPlayerWins()
-                if (tx) {
+                const callPlayerWins = await contract.getPlayerWins()
+                if (callPlayerWins) {
                     setIsGameOver(true)
                     setPlayerWins(true)
                     setPlayerHand([])
@@ -35,10 +37,10 @@ function GameOverModal({
                     setDealerTurn(false)
                     setCardsAlreadyDealt(false)
                     setCounter(0)
-                    console.log("Transaction details tx:", tx)
+                    console.log("Transaction details tx:", callPlayerWins)
                 }
-                const result = await contract.getDealerWins()
-                if (result) {
+                const callDealerWins = await contract.getDealerWins()
+                if (callDealerWins) {
                     setIsGameOver(true)
                     setDealerWins(true)
                     setPlayerHand([])
@@ -46,18 +48,29 @@ function GameOverModal({
                     setDealerTurn(false)
                     setCardsAlreadyDealt(false)
                     setCounter(0)
-                    console.log("Transaction details result:", result)
+                    console.log("Transaction details result:", callDealerWins)
+                }
+                const callNoWinner = await contract.getNoWinner()
+                if (callNoWinner) {
+                    setIsGameOver(true)
+                    setNoWinner(true)
+                    setPlayerHand([])
+                    setDealerHand([])
+                    setDealerTurn(false)
+                    setCardsAlreadyDealt(false)
+                    setCounter(0)
+                    console.log("Transaction details result:", callNoWinner)
                 }
             } else {
                 console.error("Contract instance not found", contract)
             }
         } catch (error) {
-            console.error("Error calling dealCards function:", error)
+            console.error("Error calling gameOverResult function:", error)
         }
     }
     return (
         <>
-            {isGameOver && playerWins && (
+            {playerWins && (
                 <div className={`modal ${showGameOverModal ? "show" : "hide"}`}>
                     <div className="modal-content">
                         <span className="close" onClick={closeGameOverModal}>
@@ -69,7 +82,7 @@ function GameOverModal({
                 </div>
             )}
 
-            {isGameOver && dealerWins && (
+            {dealerWins && (
                 <div className={`modal ${showGameOverModal ? "show" : "hide"}`}>
                     <div className="modal-content">
                         <span className="close" onClick={closeGameOverModal}>
@@ -81,7 +94,7 @@ function GameOverModal({
                 </div>
             )}
 
-            {!playerWins && !dealerWins && isGameOver && (
+            {noWinner && (
                 <div className={`modal ${showGameOverModal ? "show" : "hide"}`}>
                     <div className="modal-content">
                         <span className="close" onClick={closeGameOverModal}>
@@ -89,7 +102,7 @@ function GameOverModal({
                         </span>
                         <h3>GAME OVER</h3>
                         <p>Draw Game</p>
-                        <p> No Winner!</p>
+                        <p>No Winner!</p>
                     </div>
                 </div>
             )}

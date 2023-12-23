@@ -233,10 +233,6 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         if (s_playerValue > 21) {
             playerTurn = false;
             dealerTurn = true;
-
-            // dealerWins = true;
-            // gameOver();
-            // emit Blackjack__DealerWins();
         }
 
         emit Blackjack__PlayerHit(
@@ -272,11 +268,7 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         if (!dealerTurn) {
             revert Blackjack__NotDealerTurn(dealerTurn);
         }
-        if (s_playerValue > 21) {
-            dealerWins = true;
-            gameOver();
-            emit Blackjack__DealerWins();
-        }
+
         counter++;
         if (s_randomResult[counter].hasBeenPlayed) {
             revert Blackjack__CardHasAlreadyBeenPlayed();
@@ -318,7 +310,11 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
     function performUpkeep(
         bytes calldata /* performData */
     ) external override {
-        if (s_dealerValue < s_playerValue && s_dealerValue < 21) {
+        if (s_playerValue > 21) {
+            dealerWins = true;
+            gameOver();
+            emit Blackjack__DealerWins();
+        } else if (s_dealerValue < s_playerValue && s_dealerValue < 21) {
             dealerHitCard();
         } else if (s_dealerValue > s_playerValue && s_dealerValue <= 21) {
             dealerWins = true;

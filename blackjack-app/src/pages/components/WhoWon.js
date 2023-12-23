@@ -9,15 +9,18 @@ export default function WhoWon({
     setPlayerWins,
     setIsGameOver,
     setGameStarted,
+    setNoWinner,
 }) {
     useEffect(() => {
         getDealerWins()
         getPlayerWins()
+        getNoWinner()
     }, [state])
 
     const getWhoWon = async () => {
         getDealerWins()
         getPlayerWins()
+        getNoWinner()
         console.log("DH:", dealerHand, "PH:", playerHand, "Counter:", counter)
     }
 
@@ -37,7 +40,7 @@ export default function WhoWon({
                 console.error("Contract instance not found", contract)
             }
         } catch (error) {
-            console.error("Error calling dealCards function:", error)
+            console.error("Error calling getDealerWins function:", error)
         }
     }
 
@@ -58,6 +61,26 @@ export default function WhoWon({
             }
         } catch (error) {
             console.error("Error calling getPlayerWins function:", error)
+        }
+    }
+
+    const getNoWinner = async () => {
+        try {
+            const { contract } = state
+
+            if (contract) {
+                const txResult = await contract.getNoWinner()
+                if (txResult) {
+                    setIsGameOver(true)
+                    setNoWinner(true)
+                    setGameStarted(false)
+                }
+                console.log("Transaction details No Winner:", txResult)
+            } else {
+                console.error("Contract instance not found", contract)
+            }
+        } catch (error) {
+            console.error("Error calling getNoWinner function:", error)
         }
     }
     return <button onClick={getWhoWon}>Who Won?</button>

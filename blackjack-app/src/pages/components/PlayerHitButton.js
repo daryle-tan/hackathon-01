@@ -33,7 +33,7 @@ export default function PlayerHitButton({
                 setCounter(counter + 1)
 
                 setIsLoading(false)
-                // setPlayerHasHit(true)
+                setPlayerHasHit(true)
                 // getRandomResult()
                 console.log("Transaction details:", tx)
             } else {

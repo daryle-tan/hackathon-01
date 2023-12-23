@@ -15,15 +15,16 @@ function StartGameButton({
     isLoading,
     setPlayerWins,
     setDealerWins,
+    setNoWinner,
 }) {
     const startGame = async () => {
         setIsLoading(true)
         try {
-            // const { contract } = state
+            const { contract } = state
             // Check if contract instance exists
-            if (state) {
+            if (contract) {
                 // Trigger the startGame function
-                const tx = await state.startGame()
+                const tx = await contract.startGame()
 
                 setGameStarted(true)
                 setIsLoading(false)
@@ -53,6 +54,7 @@ function StartGameButton({
             setGameStarted(true)
             setPlayerWins(false)
             setDealerWins(false)
+            setNoWinner(false)
         }
     }, [gameStarted])
     return (
