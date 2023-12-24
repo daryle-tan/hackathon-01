@@ -1,4 +1,5 @@
 import React, { useEffect } from "react"
+import styles from "../../styles/GameOverModal.module.css"
 
 function GameOverModal({
     showGameOverModal,
@@ -72,7 +73,7 @@ function GameOverModal({
         <>
             {playerWins && (
                 <div className={`modal ${showGameOverModal ? "show" : "hide"}`}>
-                    <div className="modal-content">
+                    <div className={styles.GameOverModal}>
                         <span className="close" onClick={closeGameOverModal}>
                             &times;
                         </span>
@@ -84,7 +85,7 @@ function GameOverModal({
 
             {dealerWins && (
                 <div className={`modal ${showGameOverModal ? "show" : "hide"}`}>
-                    <div className="modal-content">
+                    <div className={styles.GameOverModal}>
                         <span className="close" onClick={closeGameOverModal}>
                             &times;
                         </span>
@@ -96,7 +97,7 @@ function GameOverModal({
 
             {noWinner && (
                 <div className={`modal ${showGameOverModal ? "show" : "hide"}`}>
-                    <div className="modal-content">
+                    <div className={styles.GameOverModal}>
                         <span className="close" onClick={closeGameOverModal}>
                             &times;
                         </span>

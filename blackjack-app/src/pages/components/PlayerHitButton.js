@@ -96,13 +96,13 @@ export default function PlayerHitButton({
 
     return (
         <>
-            {/* {isLoading ? (
+            {isLoading ? (
                 <LoadingModal />
-            ) : ( */}
-            <button className={styles.PlayerHitButton} onClick={playerHit}>
-                Player Hit
-            </button>
-            {/* )} */}
+            ) : (
+                <button className={styles.PlayerHitButton} onClick={playerHit}>
+                    Player Hit
+                </button>
+            )}
             <button onClick={getRandomResult}>getRandomResult</button>
         </>
     )

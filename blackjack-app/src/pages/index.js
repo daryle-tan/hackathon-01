@@ -369,23 +369,21 @@ export default function Home() {
                 <div className={styles.scoreContainer}>
                     <div>Player's Score: {playerCardValue}</div>
                 </div>
-                {/* {cardsAlreadyDealt ? ( */}
-                <div className={styles.playersHandDiv}>
-                    {playerHand.map((card, index) => (
-                        <div key={index}>
-                            <img
-                                className={styles.cardImage}
-                                src={cardImages[card.rank][card.suit]}
-                                alt={`${card.rank} of ${card.suit}`}
-                            />
-                        </div>
-                    ))}
-                </div>
-                {
-                    /* ) : (
-                //     <div></div> */
-                    // )
-                }
+                {cardsAlreadyDealt ? (
+                    <div className={styles.playersHandDiv}>
+                        {playerHand.map((card, index) => (
+                            <div key={index}>
+                                <img
+                                    className={styles.cardImage}
+                                    src={cardImages[card.rank][card.suit]}
+                                    alt={`${card.rank} of ${card.suit}`}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div></div>
+                )}
 
                 <div className={styles.buttonContainer}>
                     <PlayerHitButton
