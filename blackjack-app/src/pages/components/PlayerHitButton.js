@@ -51,8 +51,8 @@ export default function PlayerHitButton({
         try {
             if (contract) {
                 const result = await contract.getRandomResult()
-                if (result.length > 3) {
-                    let nestedProxy = result[counter]
+                if (result) {
+                    let nestedProxy = result[counter + 1]
                     const rank = Number(nestedProxy[0])
                     const suit = Number(nestedProxy[1])
                     const cardValue = Number(nestedProxy[2])

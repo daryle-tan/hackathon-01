@@ -316,7 +316,10 @@
     display: flex;
     flex-direction: row;
     justify-content: center;
-    width: 100%;
+    width: 15%;
+    border: 2px solid indigo;
+    background-color: aqua;
+    color: indigo;
 }
 
 .dealersHandDiv {
