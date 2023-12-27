@@ -140,16 +140,16 @@ export default function Home() {
                             ...prevDealerHand,
                             { rank, suit, cardValue },
                         ])
-                    } else if (
-                        hasBeenPlayed &&
-                        counter > 3 &&
-                        playerHand.length >= 2 &&
-                        result[counter]
-                    ) {
-                        setPlayerHand((prevPlayerHand) => [
-                            ...prevPlayerHand,
-                            { rank, suit, cardValue },
-                        ])
+                        // } else if (
+                        //     hasBeenPlayed &&
+                        //     counter > 3 &&
+                        //     playerHand.length >= 2 &&
+                        //     result[counter]
+                        // ) {
+                        //     setPlayerHand((prevPlayerHand) => [
+                        //         ...prevPlayerHand,
+                        //         { rank, suit, cardValue },
+                        //     ])
                     }
                 })
                 getPlayerCardValue()

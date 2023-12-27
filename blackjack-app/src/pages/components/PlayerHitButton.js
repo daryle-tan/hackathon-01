@@ -15,13 +15,13 @@ export default function PlayerHitButton({
     playerHasHit,
     setPlayerHasHit,
 }) {
-    useEffect(() => {
-        if (playerHasHit) {
-            getRandomResult()
-            // Reset the tracker
-            setPlayerHasHit(false)
-        }
-    }, [playerHasHit])
+    // useEffect(() => {
+    //     if (playerHasHit) {
+    //         getRandomResult()
+    //         // Reset the tracker
+    //         setPlayerHasHit(false)
+    //     }
+    // }, [playerHasHit])
 
     const playerHit = async () => {
         setIsLoading(true)
@@ -33,7 +33,7 @@ export default function PlayerHitButton({
                 setCounter(counter + 1)
 
                 setIsLoading(false)
-                setPlayerHasHit(true)
+                // setPlayerHasHit(true)
                 // getRandomResult()
                 console.log("Transaction details:", tx)
             } else {
@@ -52,13 +52,13 @@ export default function PlayerHitButton({
             if (contract) {
                 const result = await contract.getRandomResult()
                 if (result) {
-                    let nestedProxy = result[counter + 1]
+                    let nestedProxy = result[counter]
                     const rank = Number(nestedProxy[0])
                     const suit = Number(nestedProxy[1])
                     const cardValue = Number(nestedProxy[2])
                     const hasBeenPlayed = nestedProxy[3]
 
-                    if (hasBeenPlayed && counter > 3 && result[counter]) {
+                    if (nestedProxy) {
                         setPlayerHand((prevPlayerHand) => {
                             const isCardAlreadyAdded = prevPlayerHand.some(
                                 (card) =>

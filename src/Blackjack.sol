@@ -320,6 +320,10 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
             dealerWins = true;
             emit Blackjack__DealerWins();
             gameOver();
+        } else if (s_dealerValue == s_playerValue) {
+            noWinner = true;
+            emit Blackjack__PushNoWinner();
+            gameOver();
         }
     }
 
