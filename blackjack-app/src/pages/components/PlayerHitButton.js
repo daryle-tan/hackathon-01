@@ -35,7 +35,7 @@ export default function PlayerHitButton({
                 setIsLoading(false)
                 // setPlayerHasHit(true)
                 // getRandomResult()
-                console.log("Transaction details:", tx)
+                console.log("Transaction details:", tx, "Counter:", counter)
             } else {
                 setIsLoading(false)
                 console.error("Contract instance not found", contract)
@@ -52,7 +52,7 @@ export default function PlayerHitButton({
             if (contract) {
                 const result = await contract.getRandomResult()
                 if (result) {
-                    let nestedProxy = result[counter]
+                    let nestedProxy = result[counter + 1]
                     const rank = Number(nestedProxy[0])
                     const suit = Number(nestedProxy[1])
                     const cardValue = Number(nestedProxy[2])
@@ -83,7 +83,7 @@ export default function PlayerHitButton({
                             nestedProxy
                         )
                     }
-                    console.log(result[counter])
+                    console.log(result[counter + 1])
                 } else {
                     console.error()
                 }
