@@ -30,7 +30,7 @@ export default function PlayerHitButton({
 
             if (contract) {
                 const tx = await contract.playerHitCard()
-                setCounter(counter + 1)
+                setCounter((counter += 1))
 
                 setIsLoading(false)
                 // setPlayerHasHit(true)
@@ -58,7 +58,7 @@ export default function PlayerHitButton({
                     const cardValue = Number(nestedProxy[2])
                     const hasBeenPlayed = nestedProxy[3]
 
-                    if (nestedProxy) {
+                    if (nestedProxy && hasBeenPlayed) {
                         setPlayerHand((prevPlayerHand) => {
                             const isCardAlreadyAdded = prevPlayerHand.some(
                                 (card) =>
@@ -83,7 +83,7 @@ export default function PlayerHitButton({
                             nestedProxy
                         )
                     }
-                    console.log(result[counter + 1])
+                    console.log(result[(counter += 1)])
                 } else {
                     console.error()
                 }
