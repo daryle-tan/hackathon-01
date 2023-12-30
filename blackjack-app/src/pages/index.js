@@ -68,7 +68,7 @@ export default function Home() {
     }
 
     const template = async () => {
-        const contractAddress = "0x54b626465dc450e32B5622cB6fD162bB70122F7b"
+        const contractAddress = "0x4098E01F2542315E70eB29556f738bd0A7af32C4"
         const contractABI = abi.abi
 
         try {
@@ -427,6 +427,7 @@ export default function Home() {
                     dealerHand={dealerHand}
                     playerHand={playerHand}
                     counter={counter}
+                    noWinner={noWinner}
                 />
                 {/* {isGameOver ? ( */}
                 <GameOverModal

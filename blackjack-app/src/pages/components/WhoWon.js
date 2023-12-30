@@ -9,6 +9,7 @@ export default function WhoWon({
     setPlayerWins,
     setIsGameOver,
     setGameStarted,
+    noWinner,
     setNoWinner,
 }) {
     useEffect(() => {
@@ -21,7 +22,16 @@ export default function WhoWon({
         getDealerWins()
         getPlayerWins()
         getNoWinner()
-        console.log("DH:", dealerHand, "PH:", playerHand, "Counter:", counter)
+        console.log(
+            "DH:",
+            dealerHand,
+            "PH:",
+            playerHand,
+            "No Winner:",
+            noWinner,
+            "Counter:",
+            counter
+        )
     }
 
     const getDealerWins = async () => {
