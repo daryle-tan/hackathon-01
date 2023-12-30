@@ -50,7 +50,7 @@ export default function Home() {
             noWinner
         )
     }, [
-        // state,
+        state,
         isGameOver,
         playerCardValue,
         dealerCardValue,
@@ -68,7 +68,7 @@ export default function Home() {
     }
 
     const template = async () => {
-        const contractAddress = "0x4098E01F2542315E70eB29556f738bd0A7af32C4"
+        const contractAddress = "0xD8bc5bBe346E4C92289BEa4F51F30D31DA19F217"
         const contractABI = abi.abi
 
         try {
@@ -140,16 +140,6 @@ export default function Home() {
                             ...prevDealerHand,
                             { rank, suit, cardValue },
                         ])
-                        // } else if (
-                        //     hasBeenPlayed &&
-                        //     counter > 3 &&
-                        //     playerHand.length >= 2 &&
-                        //     result[counter]
-                        // ) {
-                        //     setPlayerHand((prevPlayerHand) => [
-                        //         ...prevPlayerHand,
-                        //         { rank, suit, cardValue },
-                        //     ])
                     }
                 })
                 getPlayerCardValue()
@@ -422,12 +412,12 @@ export default function Home() {
                     setIsGameOver={setIsGameOver}
                     setPlayerWins={setPlayerWins}
                     setDealerWins={setDealerWins}
+                    noWinner={noWinner}
                     setNoWinner={setNoWinner}
                     setGameStarted={setGameStarted}
                     dealerHand={dealerHand}
                     playerHand={playerHand}
                     counter={counter}
-                    noWinner={noWinner}
                 />
                 {/* {isGameOver ? ( */}
                 <GameOverModal

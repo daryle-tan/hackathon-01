@@ -7,6 +7,11 @@
         },
         {
             "inputs": [],
+            "name": "Black__GameHasAlreadyStarted",
+            "type": "error"
+        },
+        {
+            "inputs": [],
             "name": "Blackjack__CardHasAlreadyBeenPlayed",
             "type": "error"
         },
@@ -56,6 +61,11 @@
         {
             "inputs": [],
             "name": "Blackjack__MustStartGameFirst",
+            "type": "error"
+        },
+        {
+            "inputs": [],
+            "name": "Blackjack__NoMoreNumbersCanBeAdded",
             "type": "error"
         },
         {
@@ -522,6 +532,19 @@
         {
             "inputs": [],
             "name": "getGameStarted",
+            "outputs": [
+                {
+                    "internalType": "bool",
+                    "name": "",
+                    "type": "bool"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "getNoWinner",
             "outputs": [
                 {
                     "internalType": "bool",

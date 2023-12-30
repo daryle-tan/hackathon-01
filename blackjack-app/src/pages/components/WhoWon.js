@@ -12,28 +12,6 @@ export default function WhoWon({
     noWinner,
     setNoWinner,
 }) {
-    useEffect(() => {
-        getDealerWins()
-        getPlayerWins()
-        getNoWinner()
-    }, [state])
-
-    const getWhoWon = async () => {
-        getDealerWins()
-        getPlayerWins()
-        getNoWinner()
-        console.log(
-            "DH:",
-            dealerHand,
-            "PH:",
-            playerHand,
-            "No Winner:",
-            noWinner,
-            "Counter:",
-            counter
-        )
-    }
-
     const getDealerWins = async () => {
         try {
             const { contract } = state
@@ -74,24 +52,51 @@ export default function WhoWon({
         }
     }
 
-    const getNoWinner = async () => {
+    const getNoWinners = async () => {
         try {
             const { contract } = state
 
             if (contract) {
+                console.log("contract:", contract)
+
                 const txResult = await contract.getNoWinner()
                 if (txResult) {
-                    setIsGameOver(true)
-                    setNoWinner(true)
-                    setGameStarted(false)
+                    //     setIsGameOver(true)
+                    //     setNoWinner(true)
+                    //     setGameStarted(false)
                 }
                 console.log("Transaction details No Winner:", txResult)
             } else {
-                console.error("Contract instance not found", contract)
+                console.error("Contract instance not found", txResult)
             }
         } catch (error) {
             console.error("Error calling getNoWinner function:", error)
         }
     }
+
+    useEffect(() => {
+        if (state) {
+            getNoWinners()
+            getDealerWins()
+            getPlayerWins()
+        }
+    }, [state])
+
+    const getWhoWon = async () => {
+        getDealerWins()
+        getPlayerWins()
+        getNoWinners()
+        console.log(
+            "DH:",
+            dealerHand,
+            "PH:",
+            playerHand,
+            "No Winner:",
+            noWinner,
+            "Counter:",
+            counter
+        )
+    }
+
     return <button onClick={getWhoWon}>Who Won?</button>
 }

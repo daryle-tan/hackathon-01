@@ -32,7 +32,7 @@ function GameOverModal({
                 const callPlayerWins = await contract.getPlayerWins()
                 if (callPlayerWins) {
                     setIsGameOver(true)
-                    // setPlayerWins(true)
+                    setPlayerWins(true)
                     // setPlayerHand([])
                     // setDealerHand([])
                     // setDealerTurn(false)
@@ -43,7 +43,7 @@ function GameOverModal({
                 const callDealerWins = await contract.getDealerWins()
                 if (callDealerWins) {
                     setIsGameOver(true)
-                    // setDealerWins(true)
+                    setDealerWins(true)
                     // setPlayerHand([])
                     // setDealerHand([])
                     // setDealerTurn(false)
@@ -54,7 +54,7 @@ function GameOverModal({
                 const callNoWinner = await contract.getNoWinner()
                 if (callNoWinner) {
                     setIsGameOver(true)
-                    // setNoWinner(true)
+                    setNoWinner(true)
                     // setPlayerHand([])
                     // setDealerHand([])
                     // setDealerTurn(false)

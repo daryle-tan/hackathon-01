@@ -16,10 +16,16 @@ contract BlackjackTest is Test {
 
     uint256 constant AMOUNT = 1 * 10**18;
     uint256 constant RESPONSE = 777;
+    bool gameStarted;
 
     function setUp() public {
         linkToken = new LinkToken();
         mockOracle = new MockOracle(address(linkToken));
+        // gameStarted = false;
+    }
+
+    function testStartGame() public {
+        assertEq(gameStarted, true);
     }
 
     function testDealCard() public {}
