@@ -13,6 +13,7 @@
     z-index: 1000;
     gap: 20px;
     font-family: var(--font-mono);
+    color: greenyellow;
 }
 
 .spinner {

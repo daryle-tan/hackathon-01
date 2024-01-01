@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import { useState, useEffect } from "react"
 import styles from "../../styles/StandButton.module.css"
 import LoadingModal from "./LoadingModal"
 
@@ -6,12 +6,15 @@ export default function StandButton({
     state,
     setIsLoading,
     isLoading,
-    getDealerCardValue,
     isGameOver,
     setPlayerTurn,
     setDealerTurn,
     dealerCardValue,
 }) {
+    const [transactionHash, setTransactionHash] = useState(null)
+    const [transactionConfirmed, setTransactionConfirmed] = useState(false)
+    const [transactionError, setTransactionError] = useState("")
+
     useEffect(() => {
         if (!isLoading) {
             setPlayerTurn(false)
@@ -20,14 +23,20 @@ export default function StandButton({
     }, [isLoading])
 
     async function StandHand() {
+        setIsLoading(true)
+        setTransactionHash(null)
+        setTransactionConfirmed(false)
+        setTransactionError("")
+
         try {
-            setIsLoading(true)
             const { contract } = state
 
             if (contract) {
                 const tx = await contract.standHand()
+                setTransactionHash(tx.hash)
+                await tx.wait(1)
+                setTransactionConfirmed(true)
 
-                setIsLoading(false)
                 console.log(
                     "Transaction details:",
                     tx,
@@ -38,19 +47,24 @@ export default function StandButton({
                 console.error("Contract instance not found", contract)
             }
         } catch (error) {
-            setIsLoading(false)
+            setTransactionError(error.message)
             console.error("Error calling dealCards function:", error)
+        } finally {
+            setIsLoading(false)
         }
     }
     return (
         <>
-            {/* {isLoading ? (
-                <LoadingModal />
-            ) : ( */}
+            {isLoading && (
+                <LoadingModal
+                    transactionHash={transactionHash}
+                    transactionConfirmed={transactionConfirmed}
+                    transactionError={transactionError}
+                />
+            )}
             <button className={styles.StandButton} onClick={StandHand}>
                 Stand
             </button>
-            {/* )} */}
         </>
     )
 }

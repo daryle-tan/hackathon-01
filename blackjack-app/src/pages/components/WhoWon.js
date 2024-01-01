@@ -61,9 +61,9 @@ export default function WhoWon({
 
                 const txResult = await contract.getNoWinner()
                 if (txResult) {
-                    //     setIsGameOver(true)
-                    //     setNoWinner(true)
-                    //     setGameStarted(false)
+                    setIsGameOver(true)
+                    setNoWinner(true)
+                    setGameStarted(false)
                 }
                 console.log("Transaction details No Winner:", txResult)
             } else {

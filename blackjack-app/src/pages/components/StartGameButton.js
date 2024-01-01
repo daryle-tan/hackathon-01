@@ -17,17 +17,27 @@ function StartGameButton({
     setDealerWins,
     setNoWinner,
 }) {
+    const [transactionHash, setTransactionHash] = useState(null)
+    const [transactionConfirmed, setTransactionConfirmed] = useState(false)
+    const [transactionError, setTransactionError] = useState("")
+
     const startGame = async () => {
         setIsLoading(true)
+        setTransactionHash(null)
+        setTransactionConfirmed(false)
+        setTransactionError("")
+
         try {
             const { contract } = state
             // Check if contract instance exists
             if (contract) {
                 // Trigger the startGame function
                 const tx = await contract.startGame()
-
+                setTransactionHash(tx.hash)
+                await tx.wait(1)
+                setTransactionConfirmed(true)
                 setGameStarted(true)
-                setIsLoading(false)
+
                 console.log(
                     "Transaction details:",
                     tx,
@@ -39,8 +49,10 @@ function StartGameButton({
                 console.error("Contract instance not found")
             }
         } catch (error) {
-            setIsLoading(false)
+            setTransactionError(error.message)
             console.error("Error calling startGame function:", error)
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -59,13 +71,16 @@ function StartGameButton({
     }, [gameStarted])
     return (
         <>
-            {isLoading ? (
-                <LoadingModal />
-            ) : (
-                <button className={styles.StartGameButton} onClick={startGame}>
-                    Start Game
-                </button>
+            {isLoading && (
+                <LoadingModal
+                    transactionHash={transactionHash}
+                    transactionConfirmed={transactionConfirmed}
+                    transactionError={transactionError}
+                />
             )}
+            <button className={styles.StartGameButton} onClick={startGame}>
+                Start Game
+            </button>
         </>
     )
 }

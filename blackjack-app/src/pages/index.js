@@ -68,7 +68,7 @@ export default function Home() {
     }
 
     const template = async () => {
-        const contractAddress = "0xD8bc5bBe346E4C92289BEa4F51F30D31DA19F217"
+        const contractAddress = "0xFE270976F676b4331B8976D17059a9eE2BA12560"
         const contractABI = abi.abi
 
         try {
@@ -320,6 +320,18 @@ export default function Home() {
                             getRandomResultArray={getRandomResultArray}
                             setCounter={setCounter}
                         />
+                        <WhoWon
+                            state={state}
+                            setIsGameOver={setIsGameOver}
+                            setPlayerWins={setPlayerWins}
+                            setDealerWins={setDealerWins}
+                            noWinner={noWinner}
+                            setNoWinner={setNoWinner}
+                            setGameStarted={setGameStarted}
+                            dealerHand={dealerHand}
+                            playerHand={playerHand}
+                            counter={counter}
+                        />
                     </div>
 
                     {isConnected ? (
@@ -341,7 +353,7 @@ export default function Home() {
                 <div className={styles.scoreContainer}>
                     <div>Dealer's Score: {dealerCardValue}</div>
                 </div>
-                {/* {cardsAlreadyDealt ? ( */}
+
                 <div className={styles.dealersHandDiv}>
                     {dealerHand.map((card, index) => (
                         <div key={index}>
@@ -353,9 +365,7 @@ export default function Home() {
                         </div>
                     ))}
                 </div>
-                {/* ) : (
-                    <div></div>
-                )} */}
+
                 <div className={styles.scoreContainer}>
                     <div>Player's Score: {playerCardValue}</div>
                 </div>
@@ -403,23 +413,10 @@ export default function Home() {
                     />
                 </div>
 
-                <button onClick={getRandomResultArray}>
+                {/* <button onClick={getRandomResultArray}>
                     Get Random Result
-                </button>
+                </button> */}
 
-                <WhoWon
-                    state={state}
-                    setIsGameOver={setIsGameOver}
-                    setPlayerWins={setPlayerWins}
-                    setDealerWins={setDealerWins}
-                    noWinner={noWinner}
-                    setNoWinner={setNoWinner}
-                    setGameStarted={setGameStarted}
-                    dealerHand={dealerHand}
-                    playerHand={playerHand}
-                    counter={counter}
-                />
-                {/* {isGameOver ? ( */}
                 <GameOverModal
                     showGameOverModal={isGameOver}
                     closeGameOverModal={closeGameOverModal}
@@ -439,9 +436,6 @@ export default function Home() {
                     noWinner={noWinner}
                     setNoWinner={setNoWinner}
                 />
-                {/* ) : (
-                    <div></div>
-                )} */}
             </main>
         </>
     )

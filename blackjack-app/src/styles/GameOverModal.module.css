@@ -1,6 +1,6 @@
 .GameOverModal {
     position: fixed;
-    top: 50%;
+    top: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
     background-color: rgb(255, 255, 255);
@@ -18,6 +18,8 @@
     -webkit-box-orient: vertical;
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    text-align: center;
     overflow: hidden;
     font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
         sans-serif;

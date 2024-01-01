@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "../Blackjack.sol";
+import "../src/Blackjack.sol";
 import "./mocks/LinkToken.sol";
 import "forge-std/Test.sol";
 import "./mocks/MockOracle.sol";
@@ -9,6 +9,7 @@ import "./mocks/MockOracle.sol";
 contract BlackjackTest is Test {
     LinkToken public linkToken;
     MockOracle public mockOracle;
+    Blackjack public blackjack;
 
     bytes32 jobId;
     uint256 fee;
@@ -21,11 +22,12 @@ contract BlackjackTest is Test {
     function setUp() public {
         linkToken = new LinkToken();
         mockOracle = new MockOracle(address(linkToken));
-        // gameStarted = false;
+        blackjack = new Blackjack();
     }
 
     function testStartGame() public {
-        assertEq(gameStarted, true);
+        blackjack.startGame();
+        assertEq(blackjack.getGameStarted(), true);
     }
 
     function testDealCard() public {}

@@ -6,15 +6,17 @@ export default function PlayerHitButton({
     state,
     isLoading,
     setIsLoading,
-    playerHand,
     setPlayerHand,
     getPlayerCardValue,
     setCounter,
     counter,
-    isGameOver,
     playerHasHit,
     setPlayerHasHit,
 }) {
+    const [transactionHash, setTransactionHash] = useState(null)
+    const [transactionConfirmed, setTransactionConfirmed] = useState(false)
+    const [transactionError, setTransactionError] = useState("")
+
     // useEffect(() => {
     //     if (playerHasHit) {
     //         getRandomResult()
@@ -25,34 +27,46 @@ export default function PlayerHitButton({
 
     const playerHit = async () => {
         setIsLoading(true)
+        setTransactionHash(null)
+        setTransactionConfirmed(false)
+        setTransactionError("")
+
         try {
             const { contract } = state
 
             if (contract) {
                 const tx = await contract.playerHitCard()
                 setCounter((counter += 1))
-
-                setIsLoading(false)
-                // setPlayerHasHit(true)
-                // getRandomResult()
+                setTransactionHash(tx.hash)
+                await tx.wait(1)
+                getRandomResult()
                 console.log("Transaction details:", tx, "Counter:", counter)
             } else {
-                setIsLoading(false)
                 console.error("Contract instance not found", contract)
             }
         } catch (error) {
-            setIsLoading(false)
+            setTransactionError(error.message)
             console.error("Error calling playerHit function:", error)
+        } finally {
+            setTransactionConfirmed(true)
+            setIsLoading(false)
+
+            // setPlayerHasHit(true)
         }
     }
 
     const getRandomResult = async () => {
+        setTransactionHash(null)
+        setTransactionConfirmed(false)
+        setTransactionError("")
         const { contract } = state
         try {
             if (contract) {
                 const result = await contract.getRandomResult()
+                setTransactionHash(result.hash)
+                // await result.wait(1)
                 if (result) {
-                    let nestedProxy = result[counter + 1]
+                    let nestedProxy = result[counter]
                     const rank = Number(nestedProxy[0])
                     const suit = Number(nestedProxy[1])
                     const cardValue = Number(nestedProxy[2])
@@ -89,21 +103,28 @@ export default function PlayerHitButton({
                 }
             }
             getPlayerCardValue()
+            setTransactionConfirmed(true)
         } catch (error) {
+            setTransactionError(error.message)
             console.error("Contract instance not found", contract)
         }
     }
 
     return (
         <>
-            {isLoading ? (
-                <LoadingModal />
-            ) : (
-                <button className={styles.PlayerHitButton} onClick={playerHit}>
-                    Player Hit
-                </button>
+            {isLoading && (
+                <LoadingModal
+                    transactionHash={transactionHash}
+                    transactionConfirmed={transactionConfirmed}
+                    transactionError={transactionError}
+                />
             )}
-            <button onClick={getRandomResult}>getRandomResult</button>
+
+            <button className={styles.PlayerHitButton} onClick={playerHit}>
+                Player Hit
+            </button>
+
+            {/* <button onClick={getRandomResult}>getRandomResult</button> */}
         </>
     )
 }

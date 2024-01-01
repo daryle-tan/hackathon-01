@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useState, useEffect } from "react"
 import styles from "../../styles/DealCardsButton.module.css"
 import LoadingModal from "./LoadingModal"
 
@@ -13,6 +13,10 @@ export default function DealCardsButton({
     getRandomResultArray,
     setCounter,
 }) {
+    const [transactionHash, setTransactionHash] = useState(null)
+    const [transactionConfirmed, setTransactionConfirmed] = useState(false)
+    const [transactionError, setTransactionError] = useState("")
+
     useEffect(() => {
         if (!isLoading) {
             setCardsAlreadyDealt(true)
@@ -24,13 +28,18 @@ export default function DealCardsButton({
 
     const dealCards = async () => {
         setIsLoading(true)
+        setTransactionHash(null)
+        setTransactionConfirmed(false)
+        setTransactionError("")
+
         try {
             const { contract } = state
 
             if (contract) {
                 const tx = await contract.dealCards()
-                console.log(contract)
-                setIsLoading(false)
+                setTransactionHash(tx.hash)
+                await tx.wait(5)
+
                 console.log(
                     "Transaction details:",
                     tx,
@@ -43,19 +52,25 @@ export default function DealCardsButton({
                 console.error("Contract instance not found", contract)
             }
         } catch (error) {
-            setIsLoading(false)
+            setTransactionError(error.message)
             console.error("Error calling dealCards function:", error)
+        } finally {
+            setTransactionConfirmed(true)
+            setIsLoading(false)
         }
     }
     return (
         <>
-            {/* {isLoading ? (
-                <LoadingModal />
-            ) : ( */}
+            {isLoading && (
+                <LoadingModal
+                    transactionHash={transactionHash}
+                    transactionConfirmed={transactionConfirmed}
+                    transactionError={transactionError}
+                />
+            )}
             <button className={styles.DealCardsButton} onClick={dealCards}>
                 Deal Cards
             </button>
-            {/* )} */}
         </>
     )
 }
