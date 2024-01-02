@@ -31,4 +31,10 @@ contract BlackjackTest is Test {
     }
 
     function testDealCard() public {}
+
+    function testPlayerHitCard() public {}
+
+    function testStandHand() public {}
+
+    function testDealerHitCard() public {}
 }

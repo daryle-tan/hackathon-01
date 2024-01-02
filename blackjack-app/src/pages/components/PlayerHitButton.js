@@ -10,20 +10,10 @@ export default function PlayerHitButton({
     getPlayerCardValue,
     setCounter,
     counter,
-    playerHasHit,
-    setPlayerHasHit,
 }) {
     const [transactionHash, setTransactionHash] = useState(null)
     const [transactionConfirmed, setTransactionConfirmed] = useState(false)
     const [transactionError, setTransactionError] = useState("")
-
-    // useEffect(() => {
-    //     if (playerHasHit) {
-    //         getRandomResult()
-    //         // Reset the tracker
-    //         setPlayerHasHit(false)
-    //     }
-    // }, [playerHasHit])
 
     const playerHit = async () => {
         setIsLoading(true)
@@ -50,8 +40,6 @@ export default function PlayerHitButton({
         } finally {
             setTransactionConfirmed(true)
             setIsLoading(false)
-
-            // setPlayerHasHit(true)
         }
     }
 
@@ -64,7 +52,7 @@ export default function PlayerHitButton({
             if (contract) {
                 const result = await contract.getRandomResult()
                 setTransactionHash(result.hash)
-                // await result.wait(1)
+
                 if (result) {
                     let nestedProxy = result[counter]
                     const rank = Number(nestedProxy[0])
