@@ -13,7 +13,7 @@ const LoadingModal = ({
             {transactionHash && !transactionConfirmed && (
                 <p>Transaction sent: {transactionHash}</p>
             )}
-            {transactionConfirmed && <p>Transaction confirmed!</p>}
+            {/* {transactionConfirmed && <p>Transaction confirmed!</p>} */}
             {transactionError && <p>Error: {transactionError}</p>}
         </dialog>
     )

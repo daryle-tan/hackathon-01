@@ -342,6 +342,16 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         delete s_randomResult;
     }
 
+    function getDeck() external view returns (Card[] memory) {
+        uint256 size = 52;
+        Card[] memory values = new Card[](size);
+
+        for (uint256 i = 0; i < size; i++) {
+            values[i] = deck[i];
+        }
+        return values;
+    }
+
     function getRandomResult() public view returns (Card[] memory) {
         return s_randomResult;
     }
@@ -384,15 +394,5 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
 
     function getNoWinner() public view returns (bool) {
         return noWinner;
-    }
-
-    function getDeck() external view returns (Card[] memory) {
-        uint256 size = 52;
-        Card[] memory values = new Card[](size);
-
-        for (uint256 i = 0; i < size; i++) {
-            values[i] = deck[i];
-        }
-        return values;
     }
 }

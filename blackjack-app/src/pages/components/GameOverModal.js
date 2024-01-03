@@ -16,10 +16,7 @@ function GameOverModal({
 }) {
     useEffect(() => {
         gameOverResult()
-    }, [
-        state,
-        playerCardValue /*noWinner, isGameOver, playerWins, dealerWins */,
-    ])
+    }, [state, playerCardValue])
 
     const gameOverResult = async () => {
         try {
