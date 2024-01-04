@@ -25,6 +25,7 @@ contract BlackjackTest is Test {
     bool gameStarted;
     bool playerTurn;
     bool dealerTurn;
+    bool cardsAlreadyDealt;
 
     function setUp() public {
         // linkToken = new LinkToken();
@@ -42,7 +43,12 @@ contract BlackjackTest is Test {
         assertEq(blackjack.getGameStarted(), false);
     }
 
-    function testDealCard() public {}
+    function testDealCard() public {
+        blackjack.startGame();
+        blackjack.dealCards();
+        assertEq(cardsAlreadyDealt, true);
+        assertEq(playerTurn, true);
+    }
 
     function testPlayerHitCard() public {}
 
