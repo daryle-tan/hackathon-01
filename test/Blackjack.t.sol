@@ -16,16 +16,15 @@ contract BlackjackTest is Test {
     // MockOracle public mockOracle;
     Blackjack public blackjack;
 
-    bytes32 jobId;
-    uint256 fee;
-    bytes32 blank_bytes32;
-
-    uint256 constant AMOUNT = 1 * 10**18;
-    uint256 constant RESPONSE = 777;
+    uint64 subscriptionId;
+    bytes32 gasLane;
+    uint32 callbackGasLimit;
+    address vrfCoordinatorV2;
     bool gameStarted;
     bool playerTurn;
     bool dealerTurn;
     bool cardsAlreadyDealt;
+    uint256 counter = 0;
 
     function setUp() public {
         // linkToken = new LinkToken();
@@ -50,7 +49,12 @@ contract BlackjackTest is Test {
         assertEq(playerTurn, true);
     }
 
-    function testPlayerHitCard() public {}
+    function testPlayerHitCard() public {
+        blackjack.startGame();
+        blackjack.dealCards();
+        blackjack.playerHitCard();
+        assertEq(counter, 1);
+    }
 
     function testStandHand() public {
         blackjack.startGame();
