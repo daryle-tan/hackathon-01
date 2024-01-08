@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
 // import {VRFCoordinatorV2Mock} from "../test/mocks/VRFCoordinatorV2Mock.sol";
@@ -15,6 +15,8 @@ contract HelperConfig is Script {
         uint32 callbackGasLimit;
         uint64 subscriptionId;
         uint256 deployerKey;
+        VRFCoordinatorV2Interface immutable COORDINATOR = VRFCoordinatorV2Interface(0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625);
+        LinkTokenInterface immutable LINKTOKEN = LinkTokenInterface(0x779877A7B0D9E8603169DdbD7836e478b4624789);
     }
 
     mapping(uint256 => NetworkConfig) public chainIdToNetworkConfig;
