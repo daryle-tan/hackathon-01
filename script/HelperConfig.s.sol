@@ -22,7 +22,7 @@ contract HelperConfig is Script {
         bytes32 keyHash;
         uint32 callbackGasLimit;
         uint64 subscriptionId;
-        uint256 deployerKey;
+        // uint256 deployerKey;
     }
 
     mapping(uint256 => NetworkConfig) public chainIdToNetworkConfig;
@@ -33,7 +33,7 @@ contract HelperConfig is Script {
 
     function getSepoliaEthConfig()
         public
-        view
+        pure
         returns (NetworkConfig memory sepoliaNetworkConfig)
     {
         sepoliaNetworkConfig = NetworkConfig({
@@ -50,5 +50,21 @@ contract HelperConfig is Script {
         if (activeNetworkConfig.vrfCoordinator != address(0)) {
             return activeNetworkConfig;
         }
+        uint96 baseFee = 0.25 ether; // 0.25 LINK
+        uint96 gasPriceLink = 1e9; // 1 gwei
+
+        vm.startBroadcast();
+        VRFCoordinatorV2Mock vrfCoordinatorMock = new VRFCoordinatorV2Mock();
+        vm.stopBroadcast();
+
+        return
+            NetworkConfig({
+                vrfCoordinator: address(vrfCoordinatorMock),
+                link: 0x779877A7B0D9E8603169DdbD7836e478b4624789,
+                keyHash: 0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c,
+                callbackGasLimit: 2500000,
+                subscriptionId: 0
+                // deployerKey: vm.envUint("PRIVATE_KEY")
+            });
     }
 }

@@ -2,39 +2,47 @@
 pragma solidity ^0.8.19;
 
 import {Blackjack} from "../src/Blackjack.sol";
+import {DeployBlackjack} from "../script/Blackjack.s.sol";
 import {HelperConfig} from "../script/HelperConfig.s.sol";
 import {VRFCoordinatorV2Mock} from "./mocks/MockVRFCoordinatorV2.sol";
 import {Test, console} from "forge-std/Test.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {LinkToken} from "../test/mocks/LinkToken.sol";
 
-// import {CreateSubscription} from "../../script/Interactions.s.sol";
+import {CreateSubscription} from "../../script/Interactions.s.sol";
 
 // import {MockOracle} from "./mocks/MockOracle.sol";
 
 contract BlackjackTest is Test {
     // LinkToken public linkToken;
     // MockOracle public mockOracle;
-    Blackjack public blackjack;
+    Blackjack blackjack;
+    HelperConfig helperConfig;
+    // uint96 baseFee = 0.25 ether;
+    // uint96 gasPriceLink = 1e9;
 
-    uint96 baseFee = 0.25 ether;
-    uint96 gasPriceLink = 1e9;
-
-    uint64 subscriptionId;
-    bytes32 gasLane;
+    address vrfCoordinator;
+    address link;
+    bytes32 keyHash;
     uint32 callbackGasLimit;
-    VRFCoordinatorV2Mock vrfCoordinatorV2;
-    bool gameStarted;
-    bool playerTurn;
-    bool dealerTurn;
-    bool cardsAlreadyDealt;
-    uint256 counter = 0;
+    uint64 subscriptionId;
+
+    address public PLAYER = makeAddr("player");
+    uint256 public constant STARTING_USER_BALANCE = 10 ether;
 
     function setUp() public {
         // linkToken = new LinkToken();
         // mockOracle = new MockOracle(address(linkToken));
-        blackjack = new Blackjack();
-        vrfCoordinatorV2 = new VRFCoordinatorV2Mock(baseFee, gasPriceLink);
+        DeployBlackjack deployer = new DeployBlackjack();
+        (blackjack, helperConfig) = deployer.run();
+        (
+            vrfCoordinator,
+            link,
+            keyHash,
+            callbackGasLimit,
+            subscriptionId,
+
+        ) = helperConfig.activeNetworkConfig();
     }
 
     function testStartGame() public {
