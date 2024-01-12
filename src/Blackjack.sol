@@ -62,7 +62,8 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
     bool dealerWins;
     bool noWinner;
 
-    bytes32 private immutable i_gasLane = 0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c;
+    bytes32 private immutable i_gasLane =
+        0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c;
     uint64 private immutable i_subscriptionId = 7200;
     uint16 private constant REQUEST_CONFIRMATIONS = 3;
     uint32 private constant CALLBACK_GAS_LIMIT = 2500000;
@@ -96,9 +97,15 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         _;
     }
 
-    constructor() VRFConsumerBaseV2(0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625) {
-        COORDINATOR = VRFCoordinatorV2Interface(0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625);
-        LINKTOKEN = LinkTokenInterface(0x779877A7B0D9E8603169DdbD7836e478b4624789);
+    constructor()
+        VRFConsumerBaseV2(0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625)
+    {
+        COORDINATOR = VRFCoordinatorV2Interface(
+            0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625
+        );
+        LINKTOKEN = LinkTokenInterface(
+            0x779877A7B0D9E8603169DdbD7836e478b4624789
+        );
         s_owner = msg.sender;
 
         uint256 cardIndex = 0;
@@ -165,7 +172,10 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
 
     /* implement the VRF to randomly select cards from the deck and assign them to s_randomResult 
     and increment counter to 3 which represents index of the first 4 cards in s_randomResult */
-    function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal override {
+    function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords)
+        internal
+        override
+    {
         if (requestId != s_requestId) {
             revert Blackjack__IncorrectRequestId(requestId);
         }
@@ -200,7 +210,10 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         }
 
         emit Blackjack__ReturnedFirstRandomFourCards(
-            s_randomResult[0], s_randomResult[1], s_randomResult[2], s_randomResult[3]
+            s_randomResult[0],
+            s_randomResult[1],
+            s_randomResult[2],
+            s_randomResult[3]
         );
         emit Blackjack__ReturnedRandomness(s_randomResult);
     }
@@ -224,7 +237,9 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         }
 
         emit Blackjack__PlayerHit(
-            s_randomResult[counter].rank, s_randomResult[counter].suit, s_randomResult[counter].cardValue
+            s_randomResult[counter].rank,
+            s_randomResult[counter].suit,
+            s_randomResult[counter].cardValue
         );
         return s_randomResult[counter];
     }
@@ -277,18 +292,25 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         }
     }
 
-    function checkUpkeep(bytes calldata /* checkData */ )
+    function checkUpkeep(
+        bytes calldata /* checkData */
+    )
         public
         view
         override
-        returns (bool upkeepNeeded, bytes memory /* performData */ )
+        returns (
+            bool upkeepNeeded,
+            bytes memory /* performData */
+        )
     {
         upkeepNeeded = (dealerTurn);
         return (upkeepNeeded, "0x0");
     }
 
-    // Calls dealerHitCard if upKeepNeeded
-    function performUpkeep(bytes calldata /* performData */ ) external override {
+    // Calls dealerHitCard or gameOver depending on dealerValue vs playerValue
+    function performUpkeep(
+        bytes calldata /* performData */
+    ) external override {
         if (s_playerValue > 21) {
             dealerWins = true;
             gameOver();

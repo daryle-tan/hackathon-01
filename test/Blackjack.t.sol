@@ -4,11 +4,10 @@ pragma solidity ^0.8.19;
 import {Blackjack} from "../src/Blackjack.sol";
 import {DeployBlackjack} from "../script/Blackjack.s.sol";
 import {HelperConfig} from "../script/HelperConfig.s.sol";
-import {VRFCoordinatorV2Mock} from "./mocks/MockVRFCoordinatorV2.sol";
+import {VRFCoordinatorV2Mock} from "@chainlink/contracts/src/v0.8/mocks/VRFCoordinatorV2Mock.sol";
 import {Test, console} from "forge-std/Test.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {LinkToken} from "../test/mocks/LinkToken.sol";
-
 import {CreateSubscription} from "../../script/Interactions.s.sol";
 
 // import {MockOracle} from "./mocks/MockOracle.sol";
@@ -63,65 +62,15 @@ contract BlackjackTest is Test {
         assertEq(playerTurn, true);
     }
 
-    // function testFulfillRandomWords() public {
-    //     // ...same setup as above
+    function testFulfillRandomWords() public {
+        VRFCoordinatorV2Mock(vrfCoordinator).fulfillRandomWords(
+            0,
+            address(blackjack)
 
-    //     blackjack.startGame();
-    //     uint256 requestId = blackjack.dealCards();
-    //     uint256[] memory randomWords = new uint256[](4);
-    //     randomWords[0] = uint256(
-    //         keccak256(
-    //             abi.encodePacked(
-    //                 block.timestamp,
-    //                 block.difficulty,
-    //                 address(this),
-    //                 1
-    //             )
-    //         )
-    //     );
-    //     randomWords[1] = uint256(
-    //         keccak256(
-    //             abi.encodePacked(
-    //                 block.timestamp,
-    //                 block.difficulty,
-    //                 address(this),
-    //                 2
-    //             )
-    //         )
-    //     );
-    //     randomWords[2] = uint256(
-    //         keccak256(
-    //             abi.encodePacked(
-    //                 block.timestamp,
-    //                 block.difficulty,
-    //                 address(this),
-    //                 3
-    //             )
-    //         )
-    //     );
-    //     randomWords[3] = uint256(
-    //         keccak256(
-    //             abi.encodePacked(
-    //                 block.timestamp,
-    //                 block.difficulty,
-    //                 address(this),
-    //                 4
-    //             )
-    //         )
-    //     );
-
-    //     // Simulate the VRFCoordinator calling fulfillRandomWords
-    //     blackjack.call(
-    //         abi.encodeWithSelector(
-    //             Blackjack.fulfillRandomWords.selector,
-    //             requestId,
-    //             randomWords
-    //         )
-    //     );
-
-    //     Blackjack.Card[] memory cards = blackjack.getRandomResult();
-    //     assertEq(cards.length, 4);
-    // }
+            assert(counter == 3);
+            assert(s_randomResult.length == 52);
+        );
+    }
 
     function testPlayerHitCard() public {
         blackjack.startGame();
@@ -138,9 +87,33 @@ contract BlackjackTest is Test {
         assertEq(dealerTurn, true);
     }
 
+    function testCheckUpkeepReturnsFalseIfDealerTurnIsFalse() public {
+        (bool upkeepNeeded, ) = blackjack.checkUpkeep("");
+        assert(!upkeepNeeded);
+    }
+
+    function testPerformUpkeepCanOnlyRunIfCheckUpkeepIsTrue() public {
+        // Arrange
+        blackjack.standHand();
+        // Act / Assert
+        blackjack.performUpkeep("");
+    }
+
     function testDealerHitCard() public {}
 
-    function testGameOver() public {}
+    function testGameOver() public {
+        // Arrage
+        blackjack.gameOver();
+        // Act / Assert
+        assertEq(s_randomResult.length, 0);
+        assertEq(s_playerValue, 0);
+        assertEq(s_dealerValue, 0);
+        assertEq(counter, 0);
+        assertEq(s_requestId, 0);
+        assertEq(gameStarted, false);
+        assertEq(cardsAlreadyDealt, false);
+        assertEq(dealerTurn, false);
+    }
 
     function testRestCards() public {}
 }
