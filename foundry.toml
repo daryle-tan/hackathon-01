@@ -6,6 +6,7 @@ gas_reports = ["*"]
 optimizer = true
 optimizer_runs = 20000
 fs_permissions = [{ access = "read", path = "lib/foundry-chainlink-toolkit/out"}]
+remappings = ['@chainlink/contracts/=lib/chainlink-brownie-contracts/contracts/', '@solmate=lib/solmate/src/']
 
 # Remappings in remappings.txt
 
