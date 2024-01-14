@@ -72,6 +72,11 @@ contract BlackjackTest is Test {
         );
     }
 
+    function testFulfillRandomWordsRequestId( uint256 randomRequestId) public {
+       vm.expectRevert("nonexistent request");
+       VRFCoordinatorV2Mock(vrfCoordinator).fulfillRandomWords(randomRequestId, address(blackjack));
+    }
+
     function testPlayerHitCard() public {
         blackjack.startGame();
         blackjack.dealCards();
