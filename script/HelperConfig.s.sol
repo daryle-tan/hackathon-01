@@ -22,8 +22,10 @@ contract HelperConfig is Script {
         bytes32 keyHash;
         uint32 callbackGasLimit;
         uint64 subscriptionId;
-        // uint256 deployerKey;
+        uint256 deployerKey;
     }
+
+    uint256 public constant DEFAULT_ANVIL_KEY = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
 
     mapping(uint256 => NetworkConfig) public chainIdToNetworkConfig;
 
@@ -42,7 +44,7 @@ contract HelperConfig is Script {
             keyHash: 0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c,
             callbackGasLimit: 2500000,
             subscriptionId: 7200
-            // deployerKey: vm.envUint("PRIVATE_KEY")
+            deployerKey: vm.envUint("PRIVATE_KEY")
         });
     }
 
@@ -67,8 +69,8 @@ contract HelperConfig is Script {
                 link: address(link),
                 keyHash: 0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c,
                 callbackGasLimit: 2500000,
-                subscriptionId: 0
-                // deployerKey: vm.envUint("PRIVATE_KEY")
+                subscriptionId: 0,
+                deployerKey: DEFAULT_ANVIL_KEY
             });
     }
 }

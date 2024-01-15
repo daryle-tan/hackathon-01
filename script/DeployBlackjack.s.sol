@@ -15,15 +15,16 @@ contract DeployBlackjack is Script {
             bytes32 keyHash,
             uint32 callbackGasLimit,
             uint64 subscriptionId,
+            uint256 deployerKey
 
         ) = helperConfig.activeNetworkConfig();
 
         if (subscriptionId == 0) {
             CreateSubscription createSubscription = new CreateSubscription();
-            subscriptionId = createSubscription.createSubscription(vrfCoordinator);
+            subscriptionId = createSubscription.createSubscription(vrfCoordinator, deployerKey);
 
             FundSubscription fundSubscription = new FundSubscription();
-            FundSubscription.fundSubscription(vrfCoordinator, subscriptionId, link);
+            FundSubscription.fundSubscription(vrfCoordinator, subscriptionId, link, deployerKey);
         }
 
         vm.startBroadcast();
@@ -32,12 +33,13 @@ contract DeployBlackjack is Script {
             link,
             keyHash,
             callbackGasLimit,
-            subscriptionId
+            subscriptionId,
+            deployerKey
         )
         vm.stopBroadcast();
 
         AddConsumer addConsumer = new AddConsumer();
-        addConsumer.addConsumer(address(blackjack), vrfCoordinator, subscriptionId);
+        addConsumer.addConsumer(address(blackjack), vrfCoordinator, subscriptionId,deployerKey);
         return (blackjack, helperConfig);
     }
 }

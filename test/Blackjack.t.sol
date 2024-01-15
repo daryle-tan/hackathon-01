@@ -29,6 +29,13 @@ contract BlackjackTest is Test {
     address public PLAYER = makeAddr("player");
     uint256 public constant STARTING_USER_BALANCE = 10 ether;
 
+    modifier skipFork() {
+        if(block.chainid != 31337) {
+            return;
+        }
+        _;
+    }
+
     function setUp() public {
         // linkToken = new LinkToken();
         // mockOracle = new MockOracle(address(linkToken));
@@ -62,7 +69,7 @@ contract BlackjackTest is Test {
         assertEq(playerTurn, true);
     }
 
-    function testFulfillRandomWords() public {
+    function testFulfillRandomWords() public skipFork {
         VRFCoordinatorV2Mock(vrfCoordinator).fulfillRandomWords(
             0,
             address(blackjack)
@@ -72,7 +79,13 @@ contract BlackjackTest is Test {
         );
     }
 
-    function testFulfillRandomWordsRequestId( uint256 randomRequestId) public {
+    function testFulfillRandomWordsRequestId( uint256 randomRequestId) public skipFork {
+        // ACT
+        // vm.recordLogs();
+        // blackjack.performUpkeep("");
+        // Vm.Log[] memory entries = vm.getRecordedLogs();
+        // bytes32 requestId = entries[1].topics[1];
+
        vm.expectRevert("nonexistent request");
        VRFCoordinatorV2Mock(vrfCoordinator).fulfillRandomWords(randomRequestId, address(blackjack));
     }
