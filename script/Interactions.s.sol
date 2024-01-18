@@ -11,16 +11,8 @@ import {LinkToken} from "../test/mocks/LinkToken.sol";
 contract CreateSubscription is Script {
     function createSubscriptionUsingConfig() public returns (uint64) {
         HelperConfig helperConfig = new HelperConfig();
-        (
-            ,
-            ,
-            ,
-            ,
-            ,
-            address vrfCoordinatorV2,
-            ,
-            uint256 deployerKey
-        ) = helperConfig.activeNetworkConfig();
+        (address vrfCoordinatorV2, , , , , uint256 deployerKey) = helperConfig
+            .activeNetworkConfig();
         return createSubscription(vrfCoordinatorV2, deployerKey);
     }
 
@@ -61,12 +53,11 @@ contract AddConsumer is Script {
     function addConsumerUsingConfig(address blackjack) public {
         HelperConfig helperConfig = new HelperConfig();
         (
-            ,
-            ,
             address vrfCoordinatorV2,
             ,
-            uint64 subId, // address link
             ,
+            ,
+            uint64 subId,
             uint256 deployerKey
         ) = helperConfig.activeNetworkConfig();
         addConsumer(blackjack, vrfCoordinatorV2, subId, deployerKey);
@@ -87,22 +78,20 @@ contract FundSubscription is Script {
     function fundSubscriptionUsingConfig() public {
         HelperConfig helperConfig = new HelperConfig();
         (
-            ,
-            ,
             address vrfCoordinatorV2,
+            address link,
+            ,
             ,
             uint64 subId,
-            ,
-            address link,
             uint256 deployerKey
         ) = helperConfig.activeNetworkConfig();
-        fundSubscription(vrfCoordinatorV2, subId, link, deployerKey);
+        fundSubscription(vrfCoordinatorV2, link, subId, deployerKey);
     }
 
     function fundSubscription(
         address vrfCoordinatorV2,
-        uint64 subId,
         address link,
+        uint64 subId,
         uint256 deployerKey
     ) public {
         console.log("Funding subscription: ", subId);

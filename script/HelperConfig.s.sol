@@ -25,13 +25,10 @@ contract HelperConfig is Script {
         uint256 deployerKey;
     }
 
-    uint256 public constant DEFAULT_ANVIL_KEY = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
+    uint256 public constant DEFAULT_ANVIL_KEY =
+        0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
 
     mapping(uint256 => NetworkConfig) public chainIdToNetworkConfig;
-
-    constructor() {
-        activeNetworkConfig = getSepoliaEthConfig();
-    }
 
     function getSepoliaEthConfig()
         public
@@ -43,7 +40,7 @@ contract HelperConfig is Script {
             link: 0x779877A7B0D9E8603169DdbD7836e478b4624789,
             keyHash: 0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c,
             callbackGasLimit: 2500000,
-            subscriptionId: 7200
+            subscriptionId: 7200,
             deployerKey: vm.envUint("PRIVATE_KEY")
         });
     }

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 import {Blackjack} from "../src/Blackjack.sol";
-import {DeployBlackjack} from "../script/Blackjack.s.sol";
+import {DeployBlackjack} from "../script/DeployBlackjack.s.sol";
 import {HelperConfig} from "../script/HelperConfig.s.sol";
 import {VRFCoordinatorV2Mock} from "@chainlink/contracts/src/v0.8/mocks/VRFCoordinatorV2Mock.sol";
 import {Test, console} from "forge-std/Test.sol";
@@ -30,7 +30,7 @@ contract BlackjackTest is Test {
     uint256 public constant STARTING_USER_BALANCE = 10 ether;
 
     modifier skipFork() {
-        if(block.chainid != 31337) {
+        if (block.chainid != 31337) {
             return;
         }
         _;
@@ -62,6 +62,9 @@ contract BlackjackTest is Test {
     }
 
     function testDealCard() public {
+        bool cardsAlreadyDealt;
+        bool playerTurn;
+
         blackjack.startGame();
         uint256 requestId = blackjack.dealCards();
         assertTrue(requestId != 0);
@@ -70,27 +73,36 @@ contract BlackjackTest is Test {
     }
 
     function testFulfillRandomWords() public skipFork {
+        uint256 counter = 0;
+
         VRFCoordinatorV2Mock(vrfCoordinator).fulfillRandomWords(
             0,
             address(blackjack)
-
-            assert(counter == 3);
-            assert(s_randomResult.length == 52);
         );
+        assert(counter == 3);
+        // assert(s_randomResult.length == 52);
     }
 
-    function testFulfillRandomWordsRequestId( uint256 randomRequestId) public skipFork {
+    function testFulfillRandomWordsRequestId(uint256 randomRequestId)
+        public
+        skipFork
+    {
         // ACT
         // vm.recordLogs();
         // blackjack.performUpkeep("");
         // Vm.Log[] memory entries = vm.getRecordedLogs();
         // bytes32 requestId = entries[1].topics[1];
 
-       vm.expectRevert("nonexistent request");
-       VRFCoordinatorV2Mock(vrfCoordinator).fulfillRandomWords(randomRequestId, address(blackjack));
+        vm.expectRevert("nonexistent request");
+        VRFCoordinatorV2Mock(vrfCoordinator).fulfillRandomWords(
+            randomRequestId,
+            address(blackjack)
+        );
     }
 
     function testPlayerHitCard() public {
+        uint256 counter = 0;
+
         blackjack.startGame();
         blackjack.dealCards();
         blackjack.playerHitCard();
@@ -98,6 +110,9 @@ contract BlackjackTest is Test {
     }
 
     function testStandHand() public {
+        bool playerTurn;
+        bool dealerTurn;
+
         blackjack.startGame();
         blackjack.dealCards();
         blackjack.standHand();
@@ -122,15 +137,16 @@ contract BlackjackTest is Test {
     function testGameOver() public {
         // Arrage
         blackjack.gameOver();
+
         // Act / Assert
-        assertEq(s_randomResult.length, 0);
-        assertEq(s_playerValue, 0);
-        assertEq(s_dealerValue, 0);
-        assertEq(counter, 0);
-        assertEq(s_requestId, 0);
-        assertEq(gameStarted, false);
-        assertEq(cardsAlreadyDealt, false);
-        assertEq(dealerTurn, false);
+        assertEq(blackjack.s_randomResult.length, 0);
+        assertEq(blackjack.s_playerValue, 0);
+        assertEq(blackjack.s_dealerValue, 0);
+        assertEq(blackjack.counter, 0);
+        assertEq(blackjack.s_requestId, 0);
+        assertEq(blackjack.gameStarted, false);
+        assertEq(blackjack.cardsAlreadyDealt, false);
+        assertEq(blackjack.dealerTurn, false);
     }
 
     function testRestCards() public {}

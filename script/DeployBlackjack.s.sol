@@ -16,30 +16,41 @@ contract DeployBlackjack is Script {
             uint32 callbackGasLimit,
             uint64 subscriptionId,
             uint256 deployerKey
-
         ) = helperConfig.activeNetworkConfig();
 
         if (subscriptionId == 0) {
             CreateSubscription createSubscription = new CreateSubscription();
-            subscriptionId = createSubscription.createSubscription(vrfCoordinator, deployerKey);
+            subscriptionId = createSubscription.createSubscription(
+                vrfCoordinator,
+                deployerKey
+            );
 
             FundSubscription fundSubscription = new FundSubscription();
-            FundSubscription.fundSubscription(vrfCoordinator, subscriptionId, link, deployerKey);
+            FundSubscription.fundSubscription(
+                vrfCoordinator,
+                link,
+                subscriptionId,
+                deployerKey
+            );
         }
 
-        vm.startBroadcast();
-        Blackjack blackjack = new Blackjack(
-            vrfCoordinator,
-            link,
-            keyHash,
-            callbackGasLimit,
-            subscriptionId,
-            deployerKey
-        )
+        vm.startBroadcast(deployerKey);
+        Blackjack blackjack = new Blackjack();
+        // vrfCoordinator,
+        // link,
+        // keyHash,
+        // callbackGasLimit,
+        // subscriptionId,
+        // deployerKey
         vm.stopBroadcast();
 
         AddConsumer addConsumer = new AddConsumer();
-        addConsumer.addConsumer(address(blackjack), vrfCoordinator, subscriptionId,deployerKey);
+        addConsumer.addConsumer(
+            address(blackjack),
+            vrfCoordinator,
+            subscriptionId,
+            deployerKey
+        );
         return (blackjack, helperConfig);
     }
 }
