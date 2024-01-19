@@ -26,7 +26,7 @@ contract DeployBlackjack is Script {
             );
 
             FundSubscription fundSubscription = new FundSubscription();
-            FundSubscription.fundSubscription(
+            fundSubscription.fundSubscription(
                 vrfCoordinator,
                 link,
                 subscriptionId,

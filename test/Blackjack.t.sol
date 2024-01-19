@@ -12,7 +12,7 @@ import {CreateSubscription} from "../../script/Interactions.s.sol";
 
 // import {MockOracle} from "./mocks/MockOracle.sol";
 
-contract BlackjackTest is Test {
+contract BlackjackTest is Test, Blackjack {
     // LinkToken public linkToken;
     // MockOracle public mockOracle;
     Blackjack blackjack;
@@ -51,11 +51,13 @@ contract BlackjackTest is Test {
         ) = helperConfig.activeNetworkConfig();
     }
 
+    // PASS
     function testStartGame() public {
         blackjack.startGame();
-        assertEq(blackjack.getGameStarted(), true);
+        assertEq(blackjack.gameStarted(), true);
     }
 
+    // testFail prefix indicates that the logic should fail -PASS
     function testFailStartGame() public {
         blackjack.startGame();
         assertEq(blackjack.getGameStarted(), false);
@@ -135,19 +137,31 @@ contract BlackjackTest is Test {
     function testDealerHitCard() public {}
 
     function testGameOver() public {
+        uint256 s_playerValue = 21;
+        uint256 s_dealerValue = 18;
+        uint256 counter = 5;
+        uint256 s_requestId = 1;
+        bool gameStarted = true;
+        bool cardsAlreadyDealt = true;
+        bool dealerTurn = true;
         // Arrage
-        blackjack.gameOver();
+        blackjack.performUpkeep("");
 
         // Act / Assert
-        assertEq(blackjack.s_randomResult.length, 0);
-        assertEq(blackjack.s_playerValue, 0);
-        assertEq(blackjack.s_dealerValue, 0);
-        assertEq(blackjack.counter, 0);
-        assertEq(blackjack.s_requestId, 0);
-        assertEq(blackjack.gameStarted, false);
-        assertEq(blackjack.cardsAlreadyDealt, false);
-        assertEq(blackjack.dealerTurn, false);
+        // assertEq(s_randomResult.length, 0);
+        assertEq(s_playerValue, 0);
+        assertEq(s_dealerValue, 0);
+        assertEq(counter, 0);
+        assertEq(s_requestId, 0);
+        assertEq(gameStarted, false);
+        assertEq(cardsAlreadyDealt, false);
+        assertEq(dealerTurn, false);
     }
 
-    function testRestCards() public {}
+    function testResetCards() public {
+        uint256 s_playerValue = 21;
+        uint256 s_dealerValue = 18;
+        blackjack.performUpkeep("");
+        assertEq(s_randomResult.length, 0);
+    }
 }

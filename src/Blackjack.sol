@@ -54,13 +54,13 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         bool hasBeenPlayed;
     }
 
-    bool gameStarted;
-    bool cardsAlreadyDealt;
-    bool playerTurn;
-    bool dealerTurn;
-    bool playerWins;
-    bool dealerWins;
-    bool noWinner;
+    bool public gameStarted;
+    bool public cardsAlreadyDealt;
+    bool public playerTurn;
+    bool public dealerTurn;
+    bool public playerWins;
+    bool public dealerWins;
+    bool public noWinner;
 
     bytes32 private immutable i_gasLane =
         0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c;

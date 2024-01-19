@@ -4,6 +4,8 @@ out/
 .vscode/
 .env
 .encryptedKey
+.password
+
 broadcast/
 
 node_modules
