@@ -40,6 +40,7 @@ contract BlackjackTest is Test, Blackjack {
         // linkToken = new LinkToken();
         // mockOracle = new MockOracle(address(linkToken));
         DeployBlackjack deployer = new DeployBlackjack();
+        blackjack = new Blackjack();
         (blackjack, helperConfig) = deployer.run();
         (
             vrfCoordinator,
@@ -63,7 +64,8 @@ contract BlackjackTest is Test, Blackjack {
         assertEq(blackjack.getGameStarted(), false);
     }
 
-    function testDealCard() public {
+    //
+    function testDealCards() public {
         bool cardsAlreadyDealt;
         bool playerTurn;
 
@@ -72,6 +74,26 @@ contract BlackjackTest is Test, Blackjack {
         assertTrue(requestId != 0);
         assertEq(cardsAlreadyDealt, true);
         assertEq(playerTurn, true);
+    }
+
+    // PASS
+    function testDealCardsRevertMustStartGame() public {
+        // blackjack.startGame();
+        // assertTrue(blackjack.getGameStarted());
+        // console.log(blackjack.gameStarted());
+        vm.expectRevert(Blackjack.Blackjack__MustStartGameFirst.selector);
+        blackjack.dealCards();
+    }
+
+    // FAIL
+    function testDealCardsRevertCardsAlreadyDealt() public {
+        blackjack.startGame();
+        assertTrue(blackjack.getGameStarted());
+        blackjack.dealCards();
+        // assertTrue(blackjack.getCardsAlreadyDealt());
+        console.log(blackjack.cardsAlreadyDealt());
+        vm.expectRevert(Blackjack.Blackjack__CardsAlreadyDealt.selector);
+        blackjack.dealCards();
     }
 
     function testFulfillRandomWords() public skipFork {
@@ -158,6 +180,7 @@ contract BlackjackTest is Test, Blackjack {
         assertEq(dealerTurn, false);
     }
 
+    // Pass?
     function testResetCards() public {
         uint256 s_playerValue = 21;
         uint256 s_dealerValue = 18;
