@@ -9,19 +9,19 @@ import {Test, console} from "forge-std/Test.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {LinkToken} from "../test/mocks/LinkToken.sol";
 import {CreateSubscription} from "../../script/Interactions.s.sol";
-
+import {LinkToken} from "../test/mocks/LinkToken.sol";
 // import {MockOracle} from "./mocks/MockOracle.sol";
 
 contract BlackjackTest is Test, Blackjack {
-    // LinkToken public linkToken;
+    LinkToken public linkToken;
     // MockOracle public mockOracle;
     Blackjack blackjack;
     HelperConfig helperConfig;
+    VRFCoordinatorV2Mock vrfCoordinator
     // uint96 baseFee = 0.25 ether;
     // uint96 gasPriceLink = 1e9;
 
-    address vrfCoordinator;
-    address link;
+    // address link;
     bytes32 keyHash;
     uint32 callbackGasLimit;
     uint64 subscriptionId;
@@ -39,12 +39,13 @@ contract BlackjackTest is Test, Blackjack {
     function setUp() public {
         // linkToken = new LinkToken();
         // mockOracle = new MockOracle(address(linkToken));
+        vrfCoordinator = new VRFCoordinatorV2Mock();
         DeployBlackjack deployer = new DeployBlackjack();
         blackjack = new Blackjack();
         (blackjack, helperConfig) = deployer.run();
         (
             vrfCoordinator,
-            link,
+            linkToken,
             keyHash,
             callbackGasLimit,
             subscriptionId,
@@ -77,7 +78,7 @@ contract BlackjackTest is Test, Blackjack {
     }
 
     // PASS
-    function testDealCardsRevertMustStartGame() public {
+    function test_RevertMustStartGameIf_GameStartedIsFalse() public {
         // blackjack.startGame();
         // assertTrue(blackjack.getGameStarted());
         // console.log(blackjack.gameStarted());
@@ -86,7 +87,7 @@ contract BlackjackTest is Test, Blackjack {
     }
 
     // FAIL
-    function testDealCardsRevertCardsAlreadyDealt() public {
+    function test_RevertCardsAlreadyDealtIf_CardsAlreadyDealtIsFalse() public {
         blackjack.startGame();
         assertTrue(blackjack.getGameStarted());
         blackjack.dealCards();
@@ -125,8 +126,6 @@ contract BlackjackTest is Test, Blackjack {
     }
 
     function testPlayerHitCard() public {
-        uint256 counter = 0;
-
         blackjack.startGame();
         blackjack.dealCards();
         blackjack.playerHitCard();
