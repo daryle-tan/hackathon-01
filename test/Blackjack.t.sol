@@ -10,6 +10,7 @@ import {Vm} from "forge-std/Vm.sol";
 import {LinkToken} from "../test/mocks/LinkToken.sol";
 import {CreateSubscription} from "../../script/Interactions.s.sol";
 import {LinkToken} from "../test/mocks/LinkToken.sol";
+import {MockVRFCoordinatorV2} from "../test/mocks/MockVRFCoordinatorV2.sol";
 
 // import {MockOracle} from "./mocks/MockOracle.sol";
 
@@ -18,6 +19,7 @@ contract BlackjackTest is Test, Blackjack {
     // MockOracle public mockOracle;
     Blackjack blackjack;
     HelperConfig helperConfig;
+    MockVRFCoordinatorV2 mockVrfCoordinator;
     // VRFCoordinatorV2Mock vrfCoordinator
     // uint96 baseFee = 0.25 ether;
     // uint96 gasPriceLink = 1e9;
@@ -41,6 +43,7 @@ contract BlackjackTest is Test, Blackjack {
         // linkToken = new LinkToken();
         // mockOracle = new MockOracle(address(linkToken));
         // vrfCoordinator = new VRFCoordinatorV2Mock();
+        mockVrfCoordinator = new MockVRFCoordinatorV2();
         DeployBlackjack deployer = new DeployBlackjack();
         blackjack = new Blackjack();
         (blackjack, helperConfig) = deployer.run();
@@ -68,11 +71,12 @@ contract BlackjackTest is Test, Blackjack {
 
     //
     function testDealCards() public {
-        // blackjack.gameOver();
         blackjack.startGame();
-        console.log(s_randomResult.length);
-        blackjack.dealCards();
-        console.log(s_requestId);
+        console.log(blackjack.gameStarted());
+        uint256 requestId = blackjack.dealCards();
+
+        console.log(blackjack.cardsAlreadyDealt());
+        // assertEq(blackjack.cardsAlreadyDealt(), true);
         // assertTrue(s_requestId != 0);
         // assertEq(cardsAlreadyDealt, true);
         // assertEq(playerTurn, true);
