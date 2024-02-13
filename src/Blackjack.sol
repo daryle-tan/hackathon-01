@@ -130,7 +130,7 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         }
     }
 
-    // function to start game
+    // @notice start the game
     function startGame() public {
         if (s_numCards != 52) {
             s_numCards = 52;
@@ -148,7 +148,7 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         }
     }
 
-    // function to generate 52 random numbers
+    // @notice deal the cards to the player and dealer. Also request random numbers from the VRF
     function dealCards() public returns (uint256) {
         if (!gameStarted) {
             revert Blackjack__MustStartGameFirst();
@@ -170,12 +170,12 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         return s_requestId;
     }
 
-    /* implement the VRF to randomly select cards from the deck and assign them to s_randomResult 
+    /* @notice implement the VRF to randomly select cards from the deck and assign them to s_randomResult 
     and increment counter to 3 which represents index of the first 4 cards in s_randomResult */
-    function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords)
-        internal
-        override
-    {
+    function fulfillRandomWords(
+        uint256 requestId,
+        uint256[] memory randomWords
+    ) internal override {
         if (requestId != s_requestId) {
             revert Blackjack__IncorrectRequestId(requestId);
         }
@@ -218,7 +218,7 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         emit Blackjack__ReturnedRandomness(s_randomResult);
     }
 
-    // function for player to hit
+    // @notice function for player to hit & if playerValue > 21, playerTurn = false and dealerTurn = true which will call dealerHitCard
     function playerHitCard() external returns (Card memory) {
         if (!playerTurn) {
             revert Blackjack__NotPlayerTurn(playerTurn);
@@ -244,7 +244,7 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         return s_randomResult[counter];
     }
 
-    // function for standing
+    // @notice function for player to stand
     function standHand() external {
         if (!cardsAlreadyDealt) {
             revert Blackjack__MustDealCards(cardsAlreadyDealt);
@@ -261,7 +261,7 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         emit Blackjack__PlayerStands();
     }
 
-    // function for dealer to hit which will be called through automation
+    // @notice function for dealer to hit which will be called through chainlink automation
     function dealerHitCard() public {
         if (playerTurn) {
             revert Blackjack__StillPlayerTurn(playerTurn);
@@ -292,25 +292,21 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         }
     }
 
+    // @notice function to check if upkeep is needed which will be called through chainlink automation
     function checkUpkeep(
         bytes calldata /* checkData */
     )
         public
         view
         override
-        returns (
-            bool upkeepNeeded,
-            bytes memory /* performData */
-        )
+        returns (bool upkeepNeeded, bytes memory /* performData */)
     {
         upkeepNeeded = (dealerTurn);
         return (upkeepNeeded, "0x0");
     }
 
-    // Calls dealerHitCard or gameOver depending on dealerValue vs playerValue
-    function performUpkeep(
-        bytes calldata /* performData */
-    ) external override {
+    // @notice Calls dealerHitCard or gameOver depending on dealerValue vs playerValue
+    function performUpkeep(bytes calldata /* performData */) external override {
         if (s_playerValue > 21) {
             dealerWins = true;
             gameOver();
@@ -328,6 +324,7 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         }
     }
 
+    // @notice function to end the game and reset all values
     function gameOver() internal {
         resetCards(); // Reset s_randomResult values
         s_playerValue = 0;
@@ -339,6 +336,7 @@ contract Blackjack is VRFConsumerBaseV2, AutomationCompatibleInterface {
         dealerTurn = false;
     }
 
+    // @notice function to reset s_randomResult values
     function resetCards() internal {
         delete s_randomResult;
     }
